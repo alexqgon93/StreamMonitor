@@ -15,7 +15,7 @@ the plan. The lazy-computation, worker bound, conflation, retry, and failure-ret
 decisions are recorded in `docs/DECISIONS.md`; these are design decisions, not generated
 requirements.
 
-After Staff+ review, Copilot corrected the coordinator's scheduling topology, terminal
-missing-input handling, dispatcher injection, endpoint failure classification, row indexing,
-and tests. The final Staff+ verdict was PASS WITH CHANGES; the remaining snapshot-allocation
-optimization is deferred to the measured performance work in Phase 5.
+
+For Phase 3, Copilot implemented source interfaces, Ktor clients, mock scenarios, the
+BuildConfig-backed Hilt selector, and JVM tests using Ktor's `MockEngine`. The endpoint
+contract and mock-data proportions are recorded in `docs/DECISIONS.md`.

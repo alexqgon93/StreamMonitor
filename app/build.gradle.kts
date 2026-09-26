@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val streamDataSource = providers.gradleProperty("streamDataSource").getOrElse("mock")
+val mockScenario = providers.gradleProperty("mockScenario").getOrElse("happy_path")
+val numbersEndpoint = providers.gradleProperty("numbersEndpoint").getOrElse("")
+val inputsEndpoint = providers.gradleProperty("inputsEndpoint").getOrElse("")
+
 android {
     namespace = "com.alexqgon.streammonitor"
     compileSdk {
@@ -19,6 +24,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "STREAM_DATA_SOURCE", "\"$streamDataSource\"")
+        buildConfigField("String", "MOCK_SCENARIO", "\"$mockScenario\"")
+        buildConfigField("String", "NUMBERS_ENDPOINT", "\"$numbersEndpoint\"")
+        buildConfigField("String", "INPUTS_ENDPOINT", "\"$inputsEndpoint\"")
     }
 
     buildTypes {
@@ -34,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
