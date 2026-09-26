@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_title">Stream monitor</string>
+    <string name="mock_badge">MOCK</string>
+    <string name="lifecycle_idle">Idle</string>
+    <string name="lifecycle_idle_detail">No stream started</string>
+    <string name="lifecycle_streaming">Streaming</string>
+    <string name="lifecycle_streaming_detail">Receiving values</string>
+    <string name="lifecycle_completed">Completed</string>
+    <string name="lifecycle_completed_detail">Stream finished</string>
+    <string name="lifecycle_failed">Stream failed</string>
+    <string name="lifecycle_failed_detail">Network error after retries</string>
+    <string name="numbers_received">"Numbers  %1$d"</string>
+    <string name="inputs_received">"Inputs  %1$d"</string>
+    <string name="numbers_received_accessibility">Numbers received, %1$d</string>
+    <string name="inputs_received_accessibility">Inputs received, %1$d</string>
+    <string name="start_stream">Start stream</string>
+    <string name="restart_stream">Restart stream</string>
+    <string name="retry">Retry</string>
+    <plurals name="discarded_count">
+        <item quantity="one">%1$d discarded invalid number</item>
+        <item quantity="other">%1$d discarded invalid numbers</item>
+    </plurals>
+    <string name="section_title">SECTION %1$d</string>
+    <string name="section_accessibility">Section %1$d</string>
+    <string name="item_title">Item %1$d</string>
+    <string name="result_pending">Pending</string>
+    <string name="result_ready">result = %1$s</string>
+    <string name="result_failed">Failed</string>
+    <string name="failure_missing_input">Missing input</string>
+    <string name="failure_invalid_input">Invalid input</string>
+    <string name="failure_computation">Computation failed</string>
+    <string name="result_not_needed_accessibility">No result needed</string>
+    <string name="result_ready_accessibility">Result %1$c %2$c</string>
+    <string name="row_accessibility">%1$s, %2$s, %3$s</string>
+    <string name="row_failed_accessibility">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="lifecycle_banner_accessibility">%1$s, %2$s</string>
+    <string name="empty_title">No items yet</string>
+    <string name="empty_idle_detail">Start the stream to receive values.</string>
+    <string name="empty_streaming_detail">Waiting for valid numbers.</string>
+</resources>

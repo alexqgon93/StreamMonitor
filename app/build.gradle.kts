@@ -49,6 +49,7 @@ android {
 
 dependencies {
     implementation(project(":core:data"))
+    implementation(project(":core:ui"))
     implementation(project(":feature:stream"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

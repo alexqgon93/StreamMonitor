@@ -36,15 +36,22 @@ translated into `StreamEndpointException` before it reaches the domain:
 | Payload decoding failures | No |
 | Any other transport failure | No |
 
+## Scope cuts
+
+Mock scenario selection is a build-time BuildConfig flag, not a runtime selector, per the
+scope cut for the bottom sheet.
+
+Note for future work: `StreamDataSourceConfig` is an immutable `@Singleton`, so a runtime
+selector would need a mutable holder; and `MockScenarios`' cache retains all visited scenario
+datasets for the process lifetime with no eviction — acceptable at 4 scenarios/~hundreds of
+KB, but would need a single-slot cache instead of an accumulating map if a runtime selector
+is added.
+
 ## Known issues
 
 These are accepted shortcuts for a one-day challenge; none of them block the current
 single-session usage.
 
-- The `large` scenario is generated twice because each data source resolves the scenario
-  separately, so it allocates roughly twice the data it needs at startup.
-- `MockNumbersDataSource` and `MockInputsDataSource` hold an unsynchronized cursor in an
-  app-scoped singleton, so simultaneous stream sessions would interleave their batches.
 - A mistyped `streamDataSource` or `mockScenario` property fails with a raw
   `IllegalArgumentException` at startup instead of a message naming the property.
 - `buildConfigField` interpolates endpoint URLs without escaping, so a value containing a

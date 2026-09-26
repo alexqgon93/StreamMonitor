@@ -2,9 +2,12 @@ package com.alexqgon.streammonitor.core.data
 
 import com.alexqgon.streammonitor.domain.NumberParser
 import com.alexqgon.streammonitor.domain.ParseResult
+import dagger.Lazy
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
+import javax.inject.Provider
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -25,10 +28,24 @@ class MockStreamDataSourcesTest {
         }
 
         @Test
-        fun `a consumed mock source replays its scenario for the next stream session`() = runTest {
-            val source = MockNumbersDataSource(MockScenarios.definition(MockScenario.HAPPY_PATH))
+        fun `a source that stopped mid stream does not leak its cursor into the next run`() = runTest {
+            val scenario = MockScenarios.definition(MockScenario.HAPPY_PATH)
+            val interrupted = MockNumbersDataSource(scenario)
+            interrupted.fetch()
+            interrupted.fetch()
 
-            source.allValues() shouldBe source.allValues()
+            val restarted = MockNumbersDataSource(scenario)
+
+            restarted.fetch() shouldBe scenario.numberBatches.first()
+            restarted.allValues().size + scenario.numberBatches.first().size shouldBe 40
+        }
+
+        @Test
+        fun `an exhausted source stays exhausted instead of silently replaying`() = runTest {
+            val source = MockNumbersDataSource(MockScenarios.definition(MockScenario.HAPPY_PATH))
+            source.allValues()
+
+            source.fetch() shouldBe emptyList()
         }
     }
 
@@ -91,6 +108,50 @@ class MockStreamDataSourcesTest {
             inputs.size shouldBe 20_000
             numbers.count { NumberParser.parse(it) is ParseResult.Valid } shouldBe 16_000
             numbers.count { NumberParser.parse(it) is ParseResult.Invalid } shouldBe 4_000
+        }
+    }
+
+    @Nested
+    inner class ProviderWiring {
+        @Test
+        fun `each resolution yields an independent source so a new run never inherits a cursor`() =
+            runTest {
+                val config = StreamDataSourceConfig(
+                    mode = StreamDataSourceMode.MOCK,
+                    mockScenario = MockScenario.HAPPY_PATH,
+                )
+                val noHttpClient = Lazy<HttpClient> {
+                    error("a mock source must never build an HTTP client")
+                }
+
+                val first = StreamDataSourceModule.provideNumbersDataSource(config, noHttpClient)
+                first.fetch()
+                val second = StreamDataSourceModule.provideNumbersDataSource(config, noHttpClient)
+
+                second.allValues().size shouldBe 40
+            }
+
+        @Test
+        fun `the coordinator factory resolves its endpoints once per run, not once per graph`() {
+            val scenario = MockScenarios.definition(MockScenario.HAPPY_PATH)
+            var numbersResolved = 0
+            var inputsResolved = 0
+            val factory = StreamDataSourceModule.provideStreamCoordinatorFactory(
+                numbers = {
+                    numbersResolved++
+                    NumbersStreamEndpoint(MockNumbersDataSource(scenario))
+                },
+                inputs = {
+                    inputsResolved++
+                    InputsStreamEndpoint(MockInputsDataSource(scenario))
+                },
+            )
+
+            factory.create()
+            factory.create()
+
+            numbersResolved shouldBe 2
+            inputsResolved shouldBe 2
         }
     }
 
