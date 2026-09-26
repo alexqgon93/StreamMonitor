@@ -1,2 +1,12 @@
 /build/
 **/build/
+*.iml
+.gradle
+.kotlin
+/local.properties
+/.idea/
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+*.hprof
