@@ -1,0 +1,9 @@
+com.alexqgon.streammonitor.feature.stream-pngs-0 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/build/generated/res/pngs/release
+com.alexqgon.streammonitor.feature.stream-updated_navigation_xml-1 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/build/generated/updated_navigation_xml/release
+com.alexqgon.streammonitor.feature.stream-mergeReleaseResources-2 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+com.alexqgon.streammonitor.feature.stream-mergeReleaseResources-3 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+com.alexqgon.streammonitor.feature.stream-release-4 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/build/intermediates/merged_res/release/mergeReleaseResources
+com.alexqgon.streammonitor.feature.stream-release-5 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/build/intermediates/packaged_res/release/packageReleaseResources
+com.alexqgon.streammonitor.feature.stream-main-6 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/src/main/res
+com.alexqgon.streammonitor.feature.stream-release-7 /Users/alexesquerdo/Developer/StreamMonitor/feature/stream/src/release/res
+gradleHome-0 /Users/alexesquerdo/.gradle

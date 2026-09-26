@@ -1,7 +1,7 @@
 [versions]
 agp = "9.4.1"
 ksp = "2.2.10-2.0.2"
-hilt = "2.57.2"
+hilt = "2.60.1"
 coroutines = "1.10.2"
 junit5 = "5.13.4"
 junitPlatform = "1.13.4"
@@ -52,6 +52,9 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

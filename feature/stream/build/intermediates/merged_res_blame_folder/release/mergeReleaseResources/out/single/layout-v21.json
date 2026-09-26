@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.alexqgon.streammonitor.feature.stream-release-34:/layout-v21/notification_action_tombstone.xml",
+        "source": "com.alexqgon.streammonitor.feature.stream-core-1.16.0-14:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.alexqgon.streammonitor.feature.stream-release-34:/layout-v21/notification_template_custom_big.xml",
+        "source": "com.alexqgon.streammonitor.feature.stream-core-1.16.0-14:/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "com.alexqgon.streammonitor.feature.stream-release-34:/layout-v21/notification_template_icon_group.xml",
+        "source": "com.alexqgon.streammonitor.feature.stream-core-1.16.0-14:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.alexqgon.streammonitor.feature.stream-release-34:/layout-v21/notification_action.xml",
+        "source": "com.alexqgon.streammonitor.feature.stream-core-1.16.0-14:/layout-v21/notification_action.xml"
+    }
+]
