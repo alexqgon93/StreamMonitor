@@ -3,13 +3,18 @@ package com.alexqgon.streammonitor.core.data
 import com.alexqgon.streammonitor.domain.FailureReason
 import com.alexqgon.streammonitor.domain.ResultState
 import com.alexqgon.streammonitor.domain.StreamCoordinator
+import com.alexqgon.streammonitor.domain.StreamCoordinatorFactory
 import com.alexqgon.streammonitor.domain.StreamLifecycle
 import com.alexqgon.streammonitor.domain.StreamSnapshot
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -91,6 +96,53 @@ class MockScenarioStreamIntegrationTest {
             snapshot.lifecycle shouldBe StreamLifecycle.Completed
             snapshot.rows.count { it.result is ResultState.Ready } shouldBe 16_000
             snapshot.discardedCount shouldBe 4_000
+        }
+    }
+
+    @Nested
+    inner class Restart {
+        @Test
+        fun `a run started after an interrupted one receives the scenario from its first value`() =
+            runTest {
+                val factory = freshCoordinatorFactory()
+                val interrupted = backgroundScope.launch {
+                    factory.create().snapshots().collect()
+                }
+                // Let the first run consume part of the scenario, then abandon it mid stream.
+                runCurrent()
+                interrupted.cancelAndJoin()
+
+                val restarted = factory.create().snapshots().toList().last()
+
+                restarted.lifecycle shouldBe StreamLifecycle.Completed
+                restarted.numbersReceived shouldBe 40
+                restarted.inputsReceived shouldBe 40
+            }
+
+        @Test
+        fun `two runs of the same scenario produce identical results`() = runTest {
+            val factory = freshCoordinatorFactory()
+
+            val first = factory.create().snapshots().toList().last()
+            val second = factory.create().snapshots().toList().last()
+
+            second.rows shouldBe first.rows
+            second.discardedCount shouldBe first.discardedCount
+        }
+
+        /**
+         * Mirrors the production wiring: the data sources are resolved **inside** `create()`, so
+         * every run owns a cursor at zero instead of inheriting one from the previous run.
+         */
+        private fun TestScope.freshCoordinatorFactory() = StreamCoordinatorFactory {
+            val scenario = MockScenarios.definition(MockScenario.HAPPY_PATH)
+            StreamCoordinator(
+                numbers = NumbersStreamEndpoint(MockNumbersDataSource(scenario)),
+                inputs = InputsStreamEndpoint(MockInputsDataSource(scenario)),
+                coordinatorDispatcher = StandardTestDispatcher(testScheduler),
+                computationDispatcher = StandardTestDispatcher(testScheduler),
+                compute = { input -> input.toInt().mod(100).toString().padStart(2, '0') },
+            )
         }
     }
 

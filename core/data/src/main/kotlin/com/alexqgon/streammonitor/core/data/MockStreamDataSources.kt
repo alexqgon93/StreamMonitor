@@ -1,5 +1,7 @@
 package com.alexqgon.streammonitor.core.data
 
+import java.util.concurrent.ConcurrentHashMap
+
 /**
  * Returns balanced streams with exactly 80% valid numbers and 20% invalid numbers.
  */
@@ -67,38 +69,50 @@ internal data class MockScenarioData(
 )
 
 internal object MockScenarios {
-    private val definitions = mapOf(
+    private val builders = mapOf(
         MockScenario.HAPPY_PATH to ::happyPathScenario,
         MockScenario.MALFORMED to ::malformedScenario,
         MockScenario.UNBALANCED to ::unbalancedScenario,
         MockScenario.LARGE to ::largeScenario,
     )
 
-    fun definition(scenario: MockScenario): MockScenarioData = definitions.getValue(scenario).invoke()
+    // Scenario data is immutable, so it is generated once and shared by every run. The mutable
+    // read cursor lives in the data source, which is created fresh for each run instead.
+    private val cache = ConcurrentHashMap<MockScenario, MockScenarioData>()
+
+    fun definition(scenario: MockScenario): MockScenarioData =
+        cache.getOrPut(scenario) { builders.getValue(scenario).invoke() }
 }
 
+/**
+ * Replays [MockScenarioData.numberBatches] once and then reports the stream as finished.
+ *
+ * Exhaustion is terminal: a new run gets a new instance with a fresh cursor, so restarting never
+ * depends on a previous run having drained this one.
+ */
 internal class MockNumbersDataSource(
     scenario: MockScenarioData,
 ) : NumbersDataSource {
     private val batches = scenario.numberBatches
     private var cursor = 0
 
-    override suspend fun fetch(): List<Int?> = batches.getOrNull(cursor++) ?: run {
-        cursor = 0
-        emptyList()
-    }
+    override suspend fun fetch(): List<Int?> =
+        if (cursor < batches.size) batches[cursor++] else emptyList()
 }
 
+/**
+ * Replays [MockScenarioData.inputBatches] once and then reports the stream as finished.
+ *
+ * Exhaustion is terminal for the same reason as [MockNumbersDataSource].
+ */
 internal class MockInputsDataSource(
     scenario: MockScenarioData,
 ) : InputsDataSource {
     private val batches = scenario.inputBatches
     private var cursor = 0
 
-    override suspend fun fetch(): List<Int?> = batches.getOrNull(cursor++) ?: run {
-        cursor = 0
-        emptyList()
-    }
+    override suspend fun fetch(): List<Int?> =
+        if (cursor < batches.size) batches[cursor++] else emptyList()
 }
 
 private const val LARGE_STREAM_SIZE = 20_000
