@@ -24,4 +24,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "StreamMonitor"
 include(":app")
+include(":core:domain")
+include(":core:data")
+include(":core:ui")
+include(":feature:stream")
  
