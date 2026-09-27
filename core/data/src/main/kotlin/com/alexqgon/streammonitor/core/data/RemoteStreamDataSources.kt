@@ -9,24 +9,32 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.ContentConvertException
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 internal class RemoteNumbersDataSource(
     private val client: HttpClient,
     private val endpoint: String,
 ) : NumbersDataSource {
-    override suspend fun fetch(): List<Int?> = client.fetchValues(endpoint)
+    override suspend fun fetch(): List<Int?> = client.fetchNumbers(endpoint)
 }
 
 internal class RemoteInputsDataSource(
     private val client: HttpClient,
     private val endpoint: String,
 ) : InputsDataSource {
-    override suspend fun fetch(): List<Int?> = client.fetchValues(endpoint)
+    override suspend fun fetch(): List<Int?> = client.fetchInputs(endpoint)
 }
 
 @Serializable
-internal data class ValuesPayload(val values: List<Int?>)
+internal data class NumbersPayload(
+    @SerialName("numbers") val values: List<Int?>,
+)
+
+@Serializable
+internal data class InputsPayload(
+    @SerialName("computation_input") val values: List<Int?>,
+)
 
 /**
  * Fetches one raw batch and translates **every** transport or payload failure into a
@@ -36,8 +44,16 @@ internal data class ValuesPayload(val values: List<Int?>)
  * exception reaches the domain untranslated, so the coordinator never has to interpret a
  * transport type itself.
  */
-private suspend fun HttpClient.fetchValues(endpoint: String): List<Int?> = try {
-    get(endpoint).body<ValuesPayload>().values
+private suspend fun HttpClient.fetchNumbers(endpoint: String): List<Int?> =
+    fetchPayload { get(endpoint).body<NumbersPayload>().values }
+
+private suspend fun HttpClient.fetchInputs(endpoint: String): List<Int?> =
+    fetchPayload { get(endpoint).body<InputsPayload>().values }
+
+private suspend fun HttpClient.fetchPayload(
+    fetch: suspend HttpClient.() -> List<Int?>,
+): List<Int?> = try {
+    fetch()
 } catch (cancelled: CancellationException) {
     throw cancelled
 } catch (error: ResponseException) {
