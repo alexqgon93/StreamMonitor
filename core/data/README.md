@@ -3,9 +3,10 @@
 Boundary for raw stream data. `NumbersDataSource` and `InputsDataSource` return raw
 `List<Int?>` batches; parsing and stream coordination remain in `core:domain`.
 
-The remote sources expect `{"values":[1,null,150]}` from independently configured numbers
-and inputs URLs. The Hilt graph selects mock or remote implementations from build properties,
-so callers never branch on the active source:
+The remote numbers source expects `{"numbers":[1,null,150]}`, while the inputs source expects
+`{"computation_input":[1,null,150]}`. These are the literal JSON keys defined by the
+enunciado. The Hilt graph selects mock or remote implementations from build properties, so
+callers never branch on the active source:
 
 ```text
 -PstreamDataSource=mock|remote
@@ -57,4 +58,3 @@ single-session usage.
 - `buildConfigField` interpolates endpoint URLs without escaping, so a value containing a
   quote or backslash breaks the generated `BuildConfig`.
 - Test `HttpClient` instances are not closed; harmless with `MockEngine` on the JVM.
-

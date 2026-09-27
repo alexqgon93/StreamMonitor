@@ -22,8 +22,8 @@ class RemoteStreamDataSourcesTest {
     @Nested
     inner class Numbers {
         @Test
-        fun `2xx values payload is exposed as raw numbers`() = runTest {
-            val source = RemoteNumbersDataSource(clientResponding("""{"values":[4,null,150]}"""), URL)
+        fun `2xx numbers payload is exposed as raw numbers`() = runTest {
+            val source = RemoteNumbersDataSource(clientResponding("""{"numbers":[4,null,150]}"""), URL)
 
             source.fetch() shouldBe listOf(4, null, 150)
         }
@@ -86,8 +86,8 @@ class RemoteStreamDataSourcesTest {
         }
 
         @Test
-        fun `malformed values payload is surfaced to the caller`() = runTest {
-            val source = RemoteNumbersDataSource(clientResponding("""{"values":"not-an-array"}"""), URL)
+        fun `malformed numbers payload is surfaced to the caller`() = runTest {
+            val source = RemoteNumbersDataSource(clientResponding("""{"numbers":"not-an-array"}"""), URL)
 
             shouldThrow<StreamEndpointException> { source.fetch() }.retryable shouldBe false
         }
@@ -96,8 +96,11 @@ class RemoteStreamDataSourcesTest {
     @Nested
     inner class Inputs {
         @Test
-        fun `2xx values payload is exposed as raw inputs`() = runTest {
-            val source = RemoteInputsDataSource(clientResponding("""{"values":[3,48,103]}"""), URL)
+        fun `2xx computation input payload is exposed as raw inputs`() = runTest {
+            val source = RemoteInputsDataSource(
+                clientResponding("""{"computation_input":[3,48,103]}"""),
+                URL,
+            )
 
             source.fetch() shouldBe listOf(3, 48, 103)
         }
@@ -113,8 +116,11 @@ class RemoteStreamDataSourcesTest {
         }
 
         @Test
-        fun `malformed values payload is surfaced to the caller`() = runTest {
-            val source = RemoteInputsDataSource(clientResponding("{broken-json"), URL)
+        fun `malformed computation input payload is surfaced to the caller`() = runTest {
+            val source = RemoteInputsDataSource(
+                clientResponding("""{"computation_input":"not-an-array"}"""),
+                URL,
+            )
 
             shouldThrow<StreamEndpointException> { source.fetch() }.retryable shouldBe false
         }

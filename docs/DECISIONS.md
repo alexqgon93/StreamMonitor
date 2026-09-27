@@ -30,9 +30,10 @@ Phase 0 therefore uses those paths and creates `phase/0-skeleton-contracts` from
 
 ## Proposed: Phase 3 source selection and remote contract
 
-- Remote data endpoints are injected through Gradle properties and return JSON objects shaped
-  as `{"values":[1,null,150]}`. Values remain raw `Int?` at the data/domain boundary so
-  `NumberParser` owns range and bit-layout validation.
+- Remote data endpoints are injected through Gradle properties. The numbers endpoint returns
+  `{"numbers":[1,null,150]}` and the inputs endpoint returns
+  `{"computation_input":[1,null,150]}`. Values remain raw `Int?` at the data/domain boundary
+  so `NumberParser` owns range and bit-layout validation.
 - `StreamDataSourceConfig` is provided from app `BuildConfig`, with `mock`/`remote` selected
   by `-PstreamDataSource` and mock scenario by `-PmockScenario`. The Hilt graph is the sole
   switch point; no consumer branches by source type.
