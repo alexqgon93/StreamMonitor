@@ -5,11 +5,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -43,9 +49,14 @@ fun StreamScreen(
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize()) {
             AppBar(showMockBadge)
+            // The list scrolls under the navigation bar; its last row still clears it.
+            val bottomInset = WindowInsets.safeDrawing.asPaddingValues().calculateBottomPadding()
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+                    )
                     .padding(horizontal = StreamSpacing.Lg),
                 contentAlignment = Alignment.TopCenter,
             ) {
@@ -53,7 +64,7 @@ fun StreamScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .widthIn(max = 600.dp),
-                    contentPadding = PaddingValues(bottom = StreamSpacing.Xxl),
+                    contentPadding = PaddingValues(bottom = StreamSpacing.Xxl + bottomInset),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     item(contentType = "status-panel") {
@@ -111,10 +122,16 @@ fun StreamScreen(
 @Composable
 private fun AppBar(showMockBadge: Boolean) {
     val mockBadge = stringResource(R.string.mock_badge)
+    // The surface colour extends behind the status bar; only its content is inset.
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
+                    ),
+                )
                 .heightIn(min = 64.dp)
                 .padding(horizontal = StreamSpacing.Xl),
             verticalAlignment = Alignment.CenterVertically,

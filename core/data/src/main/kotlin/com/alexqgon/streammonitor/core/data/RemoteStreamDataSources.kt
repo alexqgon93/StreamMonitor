@@ -16,14 +16,16 @@ internal class RemoteNumbersDataSource(
     private val client: HttpClient,
     private val endpoint: String,
 ) : NumbersDataSource {
-    override suspend fun fetch(): List<Int?> = client.fetchNumbers(endpoint)
+    override suspend fun fetch(): List<Int?> =
+        fetchPayload { client.get(endpoint).body<NumbersPayload>().values }
 }
 
 internal class RemoteInputsDataSource(
     private val client: HttpClient,
     private val endpoint: String,
 ) : InputsDataSource {
-    override suspend fun fetch(): List<Int?> = client.fetchInputs(endpoint)
+    override suspend fun fetch(): List<Int?> =
+        fetchPayload { client.get(endpoint).body<InputsPayload>().values }
 }
 
 @Serializable
@@ -37,21 +39,15 @@ internal data class InputsPayload(
 )
 
 /**
- * Fetches one raw batch and translates **every** transport or payload failure into a
+ * Runs one raw batch fetch and translates **every** transport or payload failure into a
  * [StreamEndpointException] carrying its retryability.
  *
  * This is the single owner of the retry classification: no Ktor, JVM, or serialization
  * exception reaches the domain untranslated, so the coordinator never has to interpret a
  * transport type itself.
  */
-private suspend fun HttpClient.fetchNumbers(endpoint: String): List<Int?> =
-    fetchPayload { get(endpoint).body<NumbersPayload>().values }
-
-private suspend fun HttpClient.fetchInputs(endpoint: String): List<Int?> =
-    fetchPayload { get(endpoint).body<InputsPayload>().values }
-
-private suspend fun HttpClient.fetchPayload(
-    fetch: suspend HttpClient.() -> List<Int?>,
+private suspend fun fetchPayload(
+    fetch: suspend () -> List<Int?>,
 ): List<Int?> = try {
     fetch()
 } catch (cancelled: CancellationException) {

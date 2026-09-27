@@ -28,7 +28,7 @@ Phase 0 therefore uses those paths and creates `phase/0-skeleton-contracts` from
   failures retry with linear backoff; malformed or terminal failures become a failed
   lifecycle without escaping the coordinator flow.
 
-## Proposed: Phase 3 source selection and remote contract
+## Accepted: Phase 3 source selection and remote contract
 
 - Remote data endpoints are injected through Gradle properties. The numbers endpoint returns
   `{"numbers":[1,null,150]}` and the inputs endpoint returns

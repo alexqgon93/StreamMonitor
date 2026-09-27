@@ -6,15 +6,12 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
 import java.io.IOException
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -124,38 +121,61 @@ class RemoteStreamDataSourcesTest {
 
             shouldThrow<StreamEndpointException> { source.fetch() }.retryable shouldBe false
         }
+
+        @Test
+        fun `a syntactically corrupt body is terminal rather than retried`() = runTest {
+            val source = RemoteInputsDataSource(clientResponding("{broken-json"), URL)
+
+            shouldThrow<StreamEndpointException> { source.fetch() }.retryable shouldBe false
+        }
+    }
+
+    /**
+     * These pin [streamHttpClient], the configuration production actually uses. Removing either
+     * setting from it must fail here rather than only in production.
+     */
+    @Nested
+    inner class SharedClientConfiguration {
+        @Test
+        fun `a non 2xx body is rejected as a transport failure instead of being parsed`() = runTest {
+            // Without expectSuccess the 5xx body would decode-fail and be classified terminal.
+            val source = RemoteNumbersDataSource(
+                clientResponding("""{"numbers":[4]}""", HttpStatusCode.ServiceUnavailable),
+                URL,
+            )
+
+            shouldThrow<StreamEndpointException> { source.fetch() }.retryable shouldBe true
+        }
+
+        @Test
+        fun `an unknown key added by the server does not fail the stream`() = runTest {
+            val source = RemoteNumbersDataSource(
+                clientResponding("""{"numbers":[4,null,150],"serverAddedField":"ignored"}"""),
+                URL,
+            )
+
+            source.fetch() shouldBe listOf(4, null, 150)
+        }
     }
 
     private fun clientResponding(
         body: String,
         status: HttpStatusCode = HttpStatusCode.OK,
-    ): HttpClient = HttpClient(MockEngine {
-        respond(
-            content = body,
-            status = status,
-            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-        )
-    }) {
-        expectSuccess = true
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-            })
-        }
-    }
+    ): HttpClient = streamHttpClient(
+        MockEngine {
+            respond(
+                content = body,
+                status = status,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+            )
+        },
+    )
 
-    private fun clientFailingWith(failure: Throwable): HttpClient = HttpClient(MockEngine {
-        throw failure
-    }) {
-        expectSuccess = true
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-            })
-        }
-    }
+    private fun clientFailingWith(failure: Throwable): HttpClient = streamHttpClient(
+        MockEngine { throw failure },
+    )
 
     private companion object {
-        const val URL = "https://streammonitor.test/values"
+        const val URL = "https://streammonitor.test/stream"
     }
 }
