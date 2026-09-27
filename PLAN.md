@@ -25,7 +25,7 @@ scenarios get dropped. The coordinator, its tests, and the documentation of deci
 
 ## Phase 0 — Skeleton and contracts (0:45)
 
-- Multi-module skeleton per `CONVENTIONS.md`, version catalog, Hilt wired, compiles.
+- Multi-module skeleton per `.github/copilot-instructions.md`, version catalog, Hilt wired, compiles.
 - Freeze the domain contracts before any logic exists:
 
 ```kotlin
@@ -248,10 +248,10 @@ Three documents. The README is the one that gets read.
 - Which tools, for what.
 - What you decided versus what was generated: the contracts, the conventions, the phase
   gates and the review are yours.
-- Reference `CONVENTIONS.md` and this plan as the mechanism.
+- Reference `.github/copilot-instructions.md` and this plan as the mechanism.
 - Be specific and honest. A vague answer here reads worse than none.
 
-**`CONVENTIONS.md`** — already written; keep it accurate.
+**`.github/copilot-instructions.md`** — already written; keep it accurate.
 
 **Gate:** read the README end to end as a stranger. Every claim in it is true of the code.
 

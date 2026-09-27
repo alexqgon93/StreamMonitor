@@ -31,8 +31,9 @@ that scaffolding — not by the underlying model being smarter on this task than
 ## Where the frozen rules changed the outcome
 
 For each of these, an unconstrained implementation pass would plausibly have produced the
-easier, weaker version. The rules and contracts fixed in `CONVENTIONS.md`/`PLAN.md` before
-writing code are what pushed the implementation to the harder, correct one instead.
+easier, weaker version. The rules and contracts fixed in `.github/copilot-instructions.md`
+and `PLAN.md` before writing code are what pushed the implementation to the harder, correct
+one instead.
 
 - **Lazy vs. eager computation.** Nothing in the brief forces lazy scheduling — eager
   computation with a discard is simpler to write and easier to reason about locally. The plan
@@ -48,7 +49,8 @@ writing code are what pushed the implementation to the harder, correct one inste
   which is exactly the kind of defect that looks fine in a quick manual test.
 - **All UI text in resources.** Left unconstrained, generated Compose UI defaults to string
   literals in composables — faster to write, and the majority of generated Android UI code
-  I've seen do exactly that. `CONVENTIONS.md` made this a stated rule from the first UI file.
+  I've seen do exactly that. `.github/copilot-instructions.md` made this a stated rule from
+  the first UI file.
 - **The JSON contract.** Left to infer a "reasonable" payload shape, the first draft used a
   single generic `{"values": [...]}` for both endpoints — simpler to model with one shared
   DTO. The brief actually specifies two distinct keys (`numbers`, `computation_input`). This
@@ -127,7 +129,8 @@ above was applied throughout rather than treated as optional polish.
 
 ## Process followed each phase
 
-1. Read the relevant section of `PLAN.md` and `CONVENTIONS.md` before writing anything.
+1. Read the relevant section of `PLAN.md` and `.github/copilot-instructions.md` before
+   writing anything.
 2. State the phase's scope and frozen contract before implementation began.
 3. Build and test the affected module in isolation.
 4. Request independent review for phases with concurrency, lifecycle, or performance risk.
