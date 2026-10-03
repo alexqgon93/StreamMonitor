@@ -24,9 +24,16 @@ sections below show where that showed up in practice, and how the process caught
 - **`docs/DECISIONS.md`** — the architectural decisions and their costs, recorded as they were
   made.
 
-None of these are AI output. They are the human-authored constraints the AI operated inside.
-The gap between "AI implements a spec" and this repository is almost entirely explained by
-that scaffolding — not by the underlying model being smarter on this task than on any other.
+The phased plan, conventions, and prompts for each phase were drafted with Claude's support
+as a planning assistant; the scope decisions, cuts, validation, and acceptance of each phase
+were the author's. The gap between "AI implements a spec" and this repository is almost
+entirely explained by that scaffolding — not by the underlying model being smarter on this
+task than on any other.
+
+## Tools and roles
+
+- **Claude (planning)** — assisted with drafting the phased plan, conventions, and phase
+  prompts.
 
 ## Where the frozen rules changed the outcome
 
@@ -54,9 +61,10 @@ one instead.
 - **The JSON contract.** Left to infer a "reasonable" payload shape, the first draft used a
   single generic `{"values": [...]}` for both endpoints — simpler to model with one shared
   DTO. The brief actually specifies two distinct keys (`numbers`, `computation_input`). This
-  was caught in review, not by the writer noticing on its own, and fixed to use two DTOs with
-  explicit `@SerialName`s matching the brief. It's a clear example of the model choosing
-  internal simplicity over spec fidelity when nothing forced otherwise.
+  was specified exactly when answering an agent question, but the implementation still used
+  `values`; the agent pointed this out while writing the documentation. It was fixed to use
+  two DTOs with explicit `@SerialName`s matching the brief. It's a clear example of the model
+  choosing internal simplicity over spec fidelity when nothing forced otherwise.
 
 ## Where guidance wasn't enough on its own — findings from review
 
