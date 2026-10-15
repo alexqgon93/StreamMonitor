@@ -10,6 +10,7 @@ package com.alexqgon.streammonitor.domain
  */
 sealed interface ResultState {
     val sortOrder: Int
+    val resultSortKey: Int get() = 0
 
     data object NotNeeded : ResultState {
         override val sortOrder: Int = 0
@@ -21,6 +22,7 @@ sealed interface ResultState {
 
     data class Ready(val value: String) : ResultState {
         override val sortOrder: Int = 2
+        override val resultSortKey: Int = value.toInt()
     }
 
     data class Failed(val reason: FailureReason) : ResultState {

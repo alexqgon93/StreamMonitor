@@ -309,6 +309,7 @@ private fun Exception.isRetryable(): Boolean =
 private val rowComparator = compareBy<StreamRow>(
     { it.itemIndex },
     { it.result.sortOrder },
+    { it.result.resultSortKey },
     { it.sourceIndex },
 )
 

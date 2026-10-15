@@ -81,14 +81,15 @@ class StreamCoordinatorTest {
         }
 
         @Test
-        fun `numbers without matching inputs resolve as missing rather than remaining pending`() = runTest {
-            val snapshot = coordinator(
-                numbers = ScriptedEndpoint(listOf(listOf(150), emptyList<Int?>())),
-                inputs = ScriptedEndpoint(listOf(emptyList<Int?>())),
-            ).toList().last()
+        fun `numbers without matching inputs resolve as missing rather than remaining pending`() =
+            runTest {
+                val snapshot = coordinator(
+                    numbers = ScriptedEndpoint(listOf(listOf(150), emptyList<Int?>())),
+                    inputs = ScriptedEndpoint(listOf(emptyList<Int?>())),
+                ).toList().last()
 
-            snapshot.rows.single().result shouldBe ResultState.Failed(FailureReason.MISSING_INPUT)
-        }
+                snapshot.rows.single().result shouldBe ResultState.Failed(FailureReason.MISSING_INPUT)
+            }
 
         @Test
         fun `input outside unsigned short range becomes an invalid input failure`() = runTest {
@@ -125,6 +126,19 @@ class StreamCoordinatorTest {
 
     @Nested
     inner class Scheduling {
+        @Test
+        fun `ready rows within an item are ordered by result value, not arrival`() = runTest {
+            // 144 = section 0, item 4, result bit set; 16 = section 0, item 4, no result bit
+            val snapshot = coordinator(
+                numbers = ScriptedEndpoint(listOf(listOf(144, 144, 16), emptyList<Int?>())),
+                inputs = ScriptedEndpoint(listOf(listOf(12, 3, 0), emptyList<Int?>())),
+            ).toList().last()
+
+            snapshot.rows.map { it.sourceIndex } shouldBe listOf(2, 1, 0)
+            snapshot.rows.map { (it.result as? ResultState.Ready)?.value } shouldBe
+                    listOf(null, "03", "12")
+        }
+
         @Test
         fun `number without result bit never schedules computation`() = runTest {
             val calls = AtomicInteger()
@@ -180,19 +194,20 @@ class StreamCoordinatorTest {
     @Nested
     inner class Reliability {
         @Test
-        fun `a failed computation does not prevent other scheduled rows from completing`() = runTest {
-            val snapshot = coordinator(
-                numbers = ScriptedEndpoint(listOf(listOf(128, 128), emptyList<Int?>())),
-                inputs = ScriptedEndpoint(listOf(listOf(1, 2), emptyList<Int?>())),
-                compute = { input ->
-                    if (input == 1.toUShort()) error("computation failed")
-                    "02"
-                },
-            ).toList().last()
+        fun `a failed computation does not prevent other scheduled rows from completing`() =
+            runTest {
+                val snapshot = coordinator(
+                    numbers = ScriptedEndpoint(listOf(listOf(128, 128), emptyList<Int?>())),
+                    inputs = ScriptedEndpoint(listOf(listOf(1, 2), emptyList<Int?>())),
+                    compute = { input ->
+                        if (input == 1.toUShort()) error("computation failed")
+                        "02"
+                    },
+                ).toList().last()
 
-            snapshot.rows.single { it.sourceIndex == 0 }.result shouldBe
-                ResultState.Failed(FailureReason.COMPUTATION_FAILED)
-        }
+                snapshot.rows.single { it.sourceIndex == 0 }.result shouldBe
+                        ResultState.Failed(FailureReason.COMPUTATION_FAILED)
+            }
 
         @Test
         fun `cancelling the collector stops outstanding endpoint polling`() = runTest {
