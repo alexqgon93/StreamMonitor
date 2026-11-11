@@ -11,10 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.alexqgon.streammonitor.core.ui.theme.StreamSpacing
 
 @Composable
-fun DiscardedSummary(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
+fun DiscardedSummary(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         modifier = modifier
@@ -22,6 +19,6 @@ fun DiscardedSummary(
             .heightIn(min = 41.dp)
             .padding(start = StreamSpacing.Xs),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall
     )
 }

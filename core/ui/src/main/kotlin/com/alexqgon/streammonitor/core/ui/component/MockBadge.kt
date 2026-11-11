@@ -16,25 +16,21 @@ import androidx.compose.ui.unit.dp
 import com.alexqgon.streammonitor.core.ui.theme.StreamSpacing
 
 @Composable
-fun MockBadge(
-    label: String,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
+fun MockBadge(label: String, contentDescription: String, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier
             .width(56.dp)
             .heightIn(min = 26.dp)
             .semantics { this.contentDescription = contentDescription },
         shape = RoundedCornerShape(7.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.primaryContainer
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(horizontal = StreamSpacing.Sm, vertical = StreamSpacing.Xs),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }

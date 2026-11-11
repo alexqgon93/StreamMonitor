@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 
 internal class RemoteNumbersDataSource(
     private val client: HttpClient,
-    private val endpoint: String,
+    private val endpoint: String
 ) : NumbersDataSource {
     override suspend fun fetch(): List<Int?> =
         fetchPayload { client.get(endpoint).body<NumbersPayload>().values }
@@ -22,21 +22,17 @@ internal class RemoteNumbersDataSource(
 
 internal class RemoteInputsDataSource(
     private val client: HttpClient,
-    private val endpoint: String,
+    private val endpoint: String
 ) : InputsDataSource {
     override suspend fun fetch(): List<Int?> =
         fetchPayload { client.get(endpoint).body<InputsPayload>().values }
 }
 
 @Serializable
-internal data class NumbersPayload(
-    @SerialName("numbers") val values: List<Int?>,
-)
+internal data class NumbersPayload(@SerialName("numbers") val values: List<Int?>)
 
 @Serializable
-internal data class InputsPayload(
-    @SerialName("computation_input") val values: List<Int?>,
-)
+internal data class InputsPayload(@SerialName("computation_input") val values: List<Int?>)
 
 /**
  * Runs one raw batch fetch and translates **every** transport or payload failure into a
@@ -46,9 +42,7 @@ internal data class InputsPayload(
  * exception reaches the domain untranslated, so the coordinator never has to interpret a
  * transport type itself.
  */
-private suspend fun fetchPayload(
-    fetch: suspend () -> List<Int?>,
-): List<Int?> = try {
+private suspend fun fetchPayload(fetch: suspend () -> List<Int?>): List<Int?> = try {
     fetch()
 } catch (cancelled: CancellationException) {
     throw cancelled
@@ -57,26 +51,26 @@ private suspend fun fetchPayload(
     throw StreamEndpointException(
         message = "Remote endpoint returned HTTP $status",
         retryable = status.isTransientStatus(),
-        cause = error,
+        cause = error
     )
 } catch (error: ContentConvertException) {
     throw StreamEndpointException(
         message = "Remote payload could not be decoded",
         retryable = false,
-        cause = error,
+        cause = error
     )
 } catch (error: IOException) {
     // Connect, socket, and request timeouts all arrive here.
     throw StreamEndpointException(
         message = error.message ?: "Remote endpoint transport failure",
         retryable = true,
-        cause = error,
+        cause = error
     )
 } catch (error: Exception) {
     throw StreamEndpointException(
         message = error.message ?: "Remote endpoint failure",
         retryable = false,
-        cause = error,
+        cause = error
     )
 }
 
@@ -84,7 +78,6 @@ private suspend fun fetchPayload(
  * Server errors, request timeouts, and rate limiting are transient; every other status is
  * terminal for this stream.
  */
-private fun Int.isTransientStatus(): Boolean =
-    this >= HttpStatusCode.InternalServerError.value ||
-        this == HttpStatusCode.RequestTimeout.value ||
-        this == HttpStatusCode.TooManyRequests.value
+private fun Int.isTransientStatus(): Boolean = this >= HttpStatusCode.InternalServerError.value ||
+    this == HttpStatusCode.RequestTimeout.value ||
+    this == HttpStatusCode.TooManyRequests.value

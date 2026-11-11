@@ -22,7 +22,7 @@ class StreamSnapshotMapperTest {
         fun `failed snapshot retains rows and exposes a failed lifecycle`() {
             val mapped = snapshot(
                 lifecycle = StreamLifecycle.Failed("network"),
-                rows = listOf(row(3, ResultState.Ready("03"))),
+                rows = listOf(row(3, ResultState.Ready("03")))
             ).toUiState(StreamUiState())
 
             mapped.lifecycle shouldBe StreamLifecycleUi.Failed
@@ -41,8 +41,8 @@ class StreamSnapshotMapperTest {
                     row(0, ResultState.NotNeeded),
                     row(1, ResultState.Pending),
                     row(2, ResultState.Ready("48")),
-                    row(3, ResultState.Failed(FailureReason.MISSING_INPUT)),
-                ),
+                    row(3, ResultState.Failed(FailureReason.MISSING_INPUT))
+                )
             ).toUiState(StreamUiState())
 
             mapped.sections.single().sectionNumber shouldBe 1
@@ -50,7 +50,7 @@ class StreamSnapshotMapperTest {
                 StreamRowStateUi.NotNeeded,
                 StreamRowStateUi.Pending,
                 StreamRowStateUi.Ready,
-                StreamRowStateUi.Failed,
+                StreamRowStateUi.Failed
             )
             mapped.sections.single().rows.last().failure shouldBe StreamFailureUi.MissingInput
         }
@@ -63,12 +63,12 @@ class StreamSnapshotMapperTest {
             val completed = StreamUiState(
                 lifecycle = StreamLifecycleUi.Completed,
                 sections = listOf(
-                    SectionUi(1, listOf(StreamRowUi(0, 1, 1, StreamRowStateUi.Ready, "03"))),
+                    SectionUi(1, listOf(StreamRowUi(0, 1, 1, StreamRowStateUi.Ready, "03")))
                 ),
                 numbersReceived = 40,
                 inputsReceived = 40,
                 discardedCount = 8,
-                hasSnapshot = true,
+                hasSnapshot = true
             )
 
             val restarted = completed.startingNewRun()
@@ -109,7 +109,7 @@ class StreamSnapshotMapperTest {
                 rows = emptyList(),
                 numbersReceived = 3,
                 inputsReceived = 2,
-                discardedCount = 3,
+                discardedCount = 3
             ).toUiState(retried)
 
             mapped.numbersReceived shouldBe 3
@@ -123,7 +123,7 @@ class StreamSnapshotMapperTest {
 
             val mapped = snapshot(
                 lifecycle = StreamLifecycle.Streaming,
-                rows = listOf(row(7, ResultState.Pending)),
+                rows = listOf(row(7, ResultState.Pending))
             ).toUiState(retried)
 
             mapped.sections.single().rows.single().sourceIndex shouldBe 7
@@ -132,30 +132,28 @@ class StreamSnapshotMapperTest {
         private fun failedRun() = StreamUiState(
             lifecycle = StreamLifecycleUi.Failed,
             sections = listOf(
-                SectionUi(1, listOf(StreamRowUi(0, 1, 1, StreamRowStateUi.Ready, "03"))),
+                SectionUi(1, listOf(StreamRowUi(0, 1, 1, StreamRowStateUi.Ready, "03")))
             ),
             numbersReceived = 12,
             inputsReceived = 9,
             discardedCount = 2,
-            hasSnapshot = true,
+            hasSnapshot = true
         )
     }
 
-    private fun snapshot(
-        lifecycle: StreamLifecycle,
-        rows: List<StreamRow> = emptyList(),
-    ) = StreamSnapshot(
-        lifecycle = lifecycle,
-        rows = rows,
-        numbersReceived = rows.size,
-        inputsReceived = rows.size,
-        discardedCount = 0,
-    )
+    private fun snapshot(lifecycle: StreamLifecycle, rows: List<StreamRow> = emptyList()) =
+        StreamSnapshot(
+            lifecycle = lifecycle,
+            rows = rows,
+            numbersReceived = rows.size,
+            inputsReceived = rows.size,
+            discardedCount = 0
+        )
 
     private fun row(sourceIndex: Int, result: ResultState) = StreamRow(
         sourceIndex = sourceIndex,
         sectionIndex = 0,
         itemIndex = sourceIndex,
-        result = result,
+        result = result
     )
 }

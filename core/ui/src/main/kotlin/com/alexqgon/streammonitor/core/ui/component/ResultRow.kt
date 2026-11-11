@@ -21,6 +21,8 @@ import com.alexqgon.streammonitor.core.ui.theme.LocalStreamColors
 import com.alexqgon.streammonitor.core.ui.theme.StreamResultTextStyle
 import com.alexqgon.streammonitor.core.ui.theme.StreamSpacing
 
+// Enum-style constants: PascalCase is the project convention for these kinds.
+@Suppress("ktlint:standard:property-naming")
 object StreamRowKind {
     const val NotNeeded = 10
     const val Pending = 11
@@ -35,7 +37,7 @@ fun ResultRow(
     reason: String,
     contentDescription: String,
     rowKind: Int,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.colorScheme
     val stateColor = when (rowKind) {
@@ -53,18 +55,18 @@ fun ResultRow(
             },
         shape = RoundedCornerShape(10.dp),
         color = colors.surface,
-        border = BorderStroke(1.dp, colors.outline),
+        border = BorderStroke(1.dp, colors.outline)
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(StreamSpacing.Sm),
+                horizontalArrangement = Arrangement.spacedBy(StreamSpacing.Sm)
             ) {
                 Text(
                     text = title,
                     modifier = Modifier.weight(1f),
                     color = colors.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall
                 )
                 if (rowKind != StreamRowKind.NotNeeded) {
                     StateGlyph(rowKind)
@@ -75,7 +77,7 @@ fun ResultRow(
                             StreamResultTextStyle
                         } else {
                             MaterialTheme.typography.bodySmall
-                        },
+                        }
                     )
                 }
             }
@@ -84,7 +86,7 @@ fun ResultRow(
                     text = reason,
                     modifier = Modifier.padding(top = StreamSpacing.Xs),
                     color = stateColor,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

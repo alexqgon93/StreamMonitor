@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
-import javax.inject.Provider
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,17 +27,18 @@ class MockStreamDataSourcesTest {
         }
 
         @Test
-        fun `a source that stopped mid stream does not leak its cursor into the next run`() = runTest {
-            val scenario = MockScenarios.definition(MockScenario.HAPPY_PATH)
-            val interrupted = MockNumbersDataSource(scenario)
-            interrupted.fetch()
-            interrupted.fetch()
+        fun `a source that stopped mid stream does not leak its cursor into the next run`() =
+            runTest {
+                val scenario = MockScenarios.definition(MockScenario.HAPPY_PATH)
+                val interrupted = MockNumbersDataSource(scenario)
+                interrupted.fetch()
+                interrupted.fetch()
 
-            val restarted = MockNumbersDataSource(scenario)
+                val restarted = MockNumbersDataSource(scenario)
 
-            restarted.fetch() shouldBe scenario.numberBatches.first()
-            restarted.allValues().size + scenario.numberBatches.first().size shouldBe 40
-        }
+                restarted.fetch() shouldBe scenario.numberBatches.first()
+                restarted.allValues().size + scenario.numberBatches.first().size shouldBe 40
+            }
 
         @Test
         fun `an exhausted source stays exhausted instead of silently replaying`() = runTest {
@@ -52,17 +52,18 @@ class MockStreamDataSourcesTest {
     @Nested
     inner class Malformed {
         @Test
-        fun `contains null out of range and unsupported item values alongside valid values`() = runTest {
-            val numbers = MockNumbersDataSource(
-                MockScenarios.definition(MockScenario.MALFORMED),
-            ).allValues()
+        fun `contains null out of range and unsupported item values alongside valid values`() =
+            runTest {
+                val numbers = MockNumbersDataSource(
+                    MockScenarios.definition(MockScenario.MALFORMED)
+                ).allValues()
 
-            numbers shouldContain null
-            numbers shouldContain 256
-            numbers shouldContain 24
-            numbers.count { NumberParser.parse(it) is ParseResult.Valid } shouldBe 5
-            numbers.count { NumberParser.parse(it) is ParseResult.Invalid } shouldBe 5
-        }
+                numbers shouldContain null
+                numbers shouldContain 256
+                numbers shouldContain 24
+                numbers.count { NumberParser.parse(it) is ParseResult.Valid } shouldBe 5
+                numbers.count { NumberParser.parse(it) is ParseResult.Invalid } shouldBe 5
+            }
 
         @Test
         fun `two of its ten inputs are malformed and sit on result bearing numbers`() = runTest {
@@ -99,16 +100,17 @@ class MockStreamDataSourcesTest {
     @Nested
     inner class Large {
         @Test
-        fun `provides twenty thousand values with an eighty percent valid number ratio`() = runTest {
-            val scenario = MockScenarios.definition(MockScenario.LARGE)
-            val numbers = MockNumbersDataSource(scenario).allValues()
-            val inputs = MockInputsDataSource(scenario).allValues()
+        fun `provides twenty thousand values with an eighty percent valid number ratio`() =
+            runTest {
+                val scenario = MockScenarios.definition(MockScenario.LARGE)
+                val numbers = MockNumbersDataSource(scenario).allValues()
+                val inputs = MockInputsDataSource(scenario).allValues()
 
-            numbers.size shouldBe 20_000
-            inputs.size shouldBe 20_000
-            numbers.count { NumberParser.parse(it) is ParseResult.Valid } shouldBe 16_000
-            numbers.count { NumberParser.parse(it) is ParseResult.Invalid } shouldBe 4_000
-        }
+                numbers.size shouldBe 20_000
+                inputs.size shouldBe 20_000
+                numbers.count { NumberParser.parse(it) is ParseResult.Valid } shouldBe 16_000
+                numbers.count { NumberParser.parse(it) is ParseResult.Invalid } shouldBe 4_000
+            }
     }
 
     @Nested
@@ -118,7 +120,7 @@ class MockStreamDataSourcesTest {
             runTest {
                 val config = StreamDataSourceConfig(
                     mode = StreamDataSourceMode.MOCK,
-                    mockScenario = MockScenario.HAPPY_PATH,
+                    mockScenario = MockScenario.HAPPY_PATH
                 )
                 val noHttpClient = Lazy<HttpClient> {
                     error("a mock source must never build an HTTP client")
@@ -144,7 +146,7 @@ class MockStreamDataSourcesTest {
                 inputs = {
                     inputsResolved++
                     InputsStreamEndpoint(MockInputsDataSource(scenario))
-                },
+                }
             )
 
             factory.create()

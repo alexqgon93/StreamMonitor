@@ -24,8 +24,10 @@ import kotlinx.serialization.json.Json
 internal fun streamHttpClient(engine: HttpClientEngine): HttpClient = HttpClient(engine) {
     expectSuccess = true
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-        })
+        json(
+            Json {
+                ignoreUnknownKeys = true
+            }
+        )
     }
 }

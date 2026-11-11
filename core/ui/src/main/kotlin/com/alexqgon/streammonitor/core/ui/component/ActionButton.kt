@@ -21,7 +21,7 @@ fun ActionButton(
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
@@ -34,7 +34,7 @@ fun ActionButton(
             },
         enabled = enabled,
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(),
+        colors = ButtonDefaults.buttonColors()
     ) {
         Text(label, style = MaterialTheme.typography.titleSmall)
     }

@@ -22,7 +22,7 @@ fun SourceCounts(
     inputsText: String,
     numbersContentDescription: String,
     inputsContentDescription: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val outline = MaterialTheme.colorScheme.outline
     val countStyle = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum")
@@ -35,10 +35,10 @@ fun SourceCounts(
                     color = outline,
                     start = Offset(0f, size.height),
                     end = Offset(size.width, size.height),
-                    strokeWidth = 1.dp.toPx(),
+                    strokeWidth = 1.dp.toPx()
                 )
             },
-        horizontalArrangement = Arrangement.spacedBy(StreamSpacing.Sm),
+        horizontalArrangement = Arrangement.spacedBy(StreamSpacing.Sm)
     ) {
         Text(
             numbersText,
@@ -46,7 +46,7 @@ fun SourceCounts(
                 .weight(1f)
                 .semantics { contentDescription = numbersContentDescription },
             color = MaterialTheme.colorScheme.onSurface,
-            style = countStyle,
+            style = countStyle
         )
         Text(
             inputsText,
@@ -55,7 +55,7 @@ fun SourceCounts(
                 .semantics { contentDescription = inputsContentDescription },
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Start,
-            style = countStyle,
+            style = countStyle
         )
     }
 }

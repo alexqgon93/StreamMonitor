@@ -20,6 +20,6 @@ object StreamDataSourceConfigModule {
         mode = StreamDataSourceMode.valueOf(BuildConfig.STREAM_DATA_SOURCE.uppercase(Locale.ROOT)),
         mockScenario = MockScenario.valueOf(BuildConfig.MOCK_SCENARIO.uppercase(Locale.ROOT)),
         numbersEndpoint = BuildConfig.NUMBERS_ENDPOINT,
-        inputsEndpoint = BuildConfig.INPUTS_ENDPOINT,
+        inputsEndpoint = BuildConfig.INPUTS_ENDPOINT
     )
 }

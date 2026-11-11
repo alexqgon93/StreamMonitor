@@ -11,7 +11,7 @@ private fun happyPathScenario(): MockScenarioData {
     }
     return MockScenarioData(
         numberBatches = numbers.chunked(10),
-        inputBatches = List(4) { batch -> List(10) { batch * 10 + it } },
+        inputBatches = List(4) { batch -> List(10) { batch * 10 + it } }
     )
 }
 
@@ -28,13 +28,13 @@ private fun happyPathScenario(): MockScenarioData {
 private fun malformedScenario(): MockScenarioData = MockScenarioData(
     numberBatches = listOf(
         listOf(4, null, 24, 256, -1),
-        listOf(150, 12, 255, 131, 16),
+        listOf(150, 12, 255, 131, 16)
     ),
     inputBatches = listOf(
         listOf(0, 1, 2, 3, 4),
         // Index 5 pairs with 150 and index 8 pairs with 131; both numbers need a result.
-        listOf(null, 6, 7, 70_000, 9),
-    ),
+        listOf(null, 6, 7, 70_000, 9)
+    )
 )
 
 /**
@@ -45,7 +45,7 @@ private fun malformedScenario(): MockScenarioData = MockScenarioData(
  */
 private fun unbalancedScenario(): MockScenarioData = MockScenarioData(
     numberBatches = listOf(listOf(4, 12, 21, 136, 150, 16)),
-    inputBatches = (0..5).map { listOf(it) },
+    inputBatches = (0..5).map { listOf(it) }
 )
 
 /**
@@ -59,13 +59,13 @@ private fun largeScenario(): MockScenarioData {
     val inputs = List(LARGE_STREAM_SIZE) { it % 65_536 }
     return MockScenarioData(
         numberBatches = numbers.chunked(LARGE_BATCH_SIZE),
-        inputBatches = inputs.chunked(LARGE_BATCH_SIZE),
+        inputBatches = inputs.chunked(LARGE_BATCH_SIZE)
     )
 }
 
 internal data class MockScenarioData(
     val numberBatches: List<List<Int?>>,
-    val inputBatches: List<List<Int?>>,
+    val inputBatches: List<List<Int?>>
 )
 
 internal object MockScenarios {
@@ -73,7 +73,7 @@ internal object MockScenarios {
         MockScenario.HAPPY_PATH to ::happyPathScenario,
         MockScenario.MALFORMED to ::malformedScenario,
         MockScenario.UNBALANCED to ::unbalancedScenario,
-        MockScenario.LARGE to ::largeScenario,
+        MockScenario.LARGE to ::largeScenario
     )
 
     // Scenario data is immutable, so it is generated once and shared by every run. The mutable
@@ -90,9 +90,7 @@ internal object MockScenarios {
  * Exhaustion is terminal: a new run gets a new instance with a fresh cursor, so restarting never
  * depends on a previous run having drained this one.
  */
-internal class MockNumbersDataSource(
-    scenario: MockScenarioData,
-) : NumbersDataSource {
+internal class MockNumbersDataSource(scenario: MockScenarioData) : NumbersDataSource {
     private val batches = scenario.numberBatches
     private var cursor = 0
 
@@ -105,9 +103,7 @@ internal class MockNumbersDataSource(
  *
  * Exhaustion is terminal for the same reason as [MockNumbersDataSource].
  */
-internal class MockInputsDataSource(
-    scenario: MockScenarioData,
-) : InputsDataSource {
+internal class MockInputsDataSource(scenario: MockScenarioData) : InputsDataSource {
     private val batches = scenario.inputBatches
     private var cursor = 0
 

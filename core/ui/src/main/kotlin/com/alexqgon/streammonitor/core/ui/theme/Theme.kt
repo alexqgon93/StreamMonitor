@@ -30,7 +30,7 @@ private val StreamLightColorScheme = lightColorScheme(
     onPrimaryContainer = Color(0xFF245B77),
     error = Color(0xFFA12C32),
     errorContainer = Color(0xFFFCEBED),
-    onErrorContainer = Color(0xFFA12C32),
+    onErrorContainer = Color(0xFFA12C32)
 )
 
 @Composable
@@ -40,13 +40,13 @@ fun StreamMonitorTheme(content: @Composable () -> Unit) {
             success = Color(0xFF286147),
             successContainer = Color(0xFFE5F3EA),
             warning = Color(0xFF765319),
-            warningContainer = Color(0xFFFFF2D7),
-        ),
+            warningContainer = Color(0xFFFFF2D7)
+        )
     ) {
         MaterialTheme(
             colorScheme = StreamLightColorScheme,
             typography = StreamTypography,
-            content = content,
+            content = content
         )
     }
 }

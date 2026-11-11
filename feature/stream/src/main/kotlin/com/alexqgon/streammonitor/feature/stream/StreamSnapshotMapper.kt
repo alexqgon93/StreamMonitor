@@ -28,7 +28,7 @@ internal fun StreamSnapshot.toUiState(previous: StreamUiState): StreamUiState {
         numbersReceived = numbersReceived,
         inputsReceived = inputsReceived,
         discardedCount = discardedCount,
-        hasSnapshot = previous.hasSnapshot || lifecycle != StreamLifecycleUi.Idle,
+        hasSnapshot = previous.hasSnapshot || lifecycle != StreamLifecycleUi.Idle
     )
 }
 
@@ -50,7 +50,7 @@ internal fun StreamUiState.startingNewRun(): StreamUiState = StreamUiState(
     numbersReceived = 0,
     inputsReceived = 0,
     discardedCount = 0,
-    hasSnapshot = hasSnapshot,
+    hasSnapshot = hasSnapshot
 )
 
 private fun StreamLifecycle.toUiLifecycle(): StreamLifecycleUi = when (this) {
@@ -73,9 +73,9 @@ private fun List<com.alexqgon.streammonitor.domain.StreamRow>.toSectionUi(): Lis
                         itemNumber = row.itemIndex + 1,
                         state = state.toUiRowState(),
                         resultValue = (state as? ResultState.Ready)?.value.orEmpty(),
-                        failure = (state as? ResultState.Failed)?.reason?.toUiFailure(),
+                        failure = (state as? ResultState.Failed)?.reason?.toUiFailure()
                     )
-                },
+                }
             )
         }
 

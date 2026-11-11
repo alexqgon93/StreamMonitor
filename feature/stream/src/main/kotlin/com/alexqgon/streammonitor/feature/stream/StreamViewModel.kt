@@ -21,7 +21,7 @@ import kotlinx.coroutines.sync.withLock
 
 @HiltViewModel
 class StreamViewModel @Inject constructor(
-    private val coordinatorFactory: StreamCoordinatorFactory,
+    private val coordinatorFactory: StreamCoordinatorFactory
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(StreamUiState())
     val state = mutableState.asStateFlow()

@@ -25,7 +25,7 @@ fun LifecycleBanner(
     detail: String,
     stateKind: Int,
     contentDescription: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.colorScheme
     val background = when (stateKind) {
@@ -41,17 +41,21 @@ fun LifecycleBanner(
                 this.contentDescription = contentDescription
             },
         shape = RoundedCornerShape(14.dp),
-        color = background,
+        color = background
     ) {
         Row(
             modifier = Modifier.padding(StreamSpacing.Lg),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             StateGlyph(stateKind)
             Column {
                 Text(title, color = colors.onSurface, style = MaterialTheme.typography.titleMedium)
-                Text(detail, color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    detail,
+                    color = colors.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }

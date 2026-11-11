@@ -1,8 +1,8 @@
 package com.alexqgon.streammonitor.core.data
 
-import com.alexqgon.streammonitor.domain.StreamEndpoint
 import com.alexqgon.streammonitor.domain.StreamCoordinator
 import com.alexqgon.streammonitor.domain.StreamCoordinatorFactory
+import com.alexqgon.streammonitor.domain.StreamEndpoint
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
@@ -23,30 +23,30 @@ object StreamDataSourceModule {
     @Provides
     fun provideNumbersDataSource(
         config: StreamDataSourceConfig,
-        client: Lazy<HttpClient>,
+        client: Lazy<HttpClient>
     ): NumbersDataSource = when (config.mode) {
         StreamDataSourceMode.MOCK -> MockNumbersDataSource(
-            MockScenarios.definition(config.mockScenario),
+            MockScenarios.definition(config.mockScenario)
         )
 
         StreamDataSourceMode.REMOTE -> RemoteNumbersDataSource(
             client = client.get(),
-            endpoint = config.numbersEndpoint.requireEndpoint("numbers"),
+            endpoint = config.numbersEndpoint.requireEndpoint("numbers")
         )
     }
 
     @Provides
     fun provideInputsDataSource(
         config: StreamDataSourceConfig,
-        client: Lazy<HttpClient>,
+        client: Lazy<HttpClient>
     ): InputsDataSource = when (config.mode) {
         StreamDataSourceMode.MOCK -> MockInputsDataSource(
-            MockScenarios.definition(config.mockScenario),
+            MockScenarios.definition(config.mockScenario)
         )
 
         StreamDataSourceMode.REMOTE -> RemoteInputsDataSource(
             client = client.get(),
-            endpoint = config.inputsEndpoint.requireEndpoint("inputs"),
+            endpoint = config.inputsEndpoint.requireEndpoint("inputs")
         )
     }
 
@@ -72,7 +72,7 @@ object StreamDataSourceModule {
     @Singleton
     fun provideStreamCoordinatorFactory(
         @NumbersEndpoint numbers: Provider<StreamEndpoint>,
-        @InputsEndpoint inputs: Provider<StreamEndpoint>,
+        @InputsEndpoint inputs: Provider<StreamEndpoint>
     ): StreamCoordinatorFactory = StreamCoordinatorFactory {
         StreamCoordinator(numbers = numbers.get(), inputs = inputs.get())
     }

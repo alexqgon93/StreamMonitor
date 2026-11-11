@@ -14,11 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.alexqgon.streammonitor.core.ui.theme.StreamSpacing
 
 @Composable
-fun SectionLabel(
-    label: String,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
+fun SectionLabel(label: String, contentDescription: String, modifier: Modifier = Modifier) {
     Text(
         text = label,
         modifier = modifier
@@ -30,6 +26,6 @@ fun SectionLabel(
                 this.contentDescription = contentDescription
             },
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelMedium
     )
 }

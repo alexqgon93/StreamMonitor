@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             StreamMonitorTheme {
                 StreamRoute(
                     viewModel = viewModel,
-                    showMockBadge = BuildConfig.STREAM_DATA_SOURCE == "mock",
+                    showMockBadge = BuildConfig.STREAM_DATA_SOURCE == "mock"
                 )
             }
         }

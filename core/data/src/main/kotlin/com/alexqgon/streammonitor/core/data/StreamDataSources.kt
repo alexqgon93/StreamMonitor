@@ -10,19 +10,19 @@ interface InputsDataSource {
 
 enum class StreamDataSourceMode {
     MOCK,
-    REMOTE,
+    REMOTE
 }
 
 enum class MockScenario {
     HAPPY_PATH,
     MALFORMED,
     UNBALANCED,
-    LARGE,
+    LARGE
 }
 
 data class StreamDataSourceConfig(
     val mode: StreamDataSourceMode,
     val mockScenario: MockScenario,
     val numbersEndpoint: String? = null,
-    val inputsEndpoint: String? = null,
+    val inputsEndpoint: String? = null
 )

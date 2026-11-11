@@ -9,7 +9,7 @@ data class StreamColors(
     val success: Color,
     val successContainer: Color,
     val warning: Color,
-    val warningContainer: Color,
+    val warningContainer: Color
 )
 
 val LocalStreamColors = staticCompositionLocalOf {
@@ -17,6 +17,6 @@ val LocalStreamColors = staticCompositionLocalOf {
         success = Color.Unspecified,
         successContainer = Color.Unspecified,
         warning = Color.Unspecified,
-        warningContainer = Color.Unspecified,
+        warningContainer = Color.Unspecified
     )
 }

@@ -56,13 +56,14 @@ class MockScenarioStreamIntegrationTest {
         }
 
         @Test
-        fun `a null input fails its row instead of being counted as a discarded number`() = runTest {
-            val snapshot = runScenario(MockScenario.MALFORMED)
+        fun `a null input fails its row instead of being counted as a discarded number`() =
+            runTest {
+                val snapshot = runScenario(MockScenario.MALFORMED)
 
-            snapshot.rows.count {
-                it.result == ResultState.Failed(FailureReason.MISSING_INPUT)
-            } shouldBe 1
-        }
+                snapshot.rows.count {
+                    it.result == ResultState.Failed(FailureReason.MISSING_INPUT)
+                } shouldBe 1
+            }
 
         @Test
         fun `an input outside the supported range fails its row`() = runTest {
@@ -141,7 +142,7 @@ class MockScenarioStreamIntegrationTest {
                 inputs = InputsStreamEndpoint(MockInputsDataSource(scenario)),
                 coordinatorDispatcher = StandardTestDispatcher(testScheduler),
                 computationDispatcher = StandardTestDispatcher(testScheduler),
-                compute = { input -> input.toInt().mod(100).toString().padStart(2, '0') },
+                compute = { input -> input.toInt().mod(100).toString().padStart(2, '0') }
             )
         }
     }
@@ -154,7 +155,7 @@ class MockScenarioStreamIntegrationTest {
             coordinatorDispatcher = StandardTestDispatcher(testScheduler),
             computationDispatcher = StandardTestDispatcher(testScheduler),
             // The simulated CPU cost of the real computer is irrelevant to stream shape.
-            compute = { input -> input.toInt().mod(100).toString().padStart(2, '0') },
+            compute = { input -> input.toInt().mod(100).toString().padStart(2, '0') }
         ).snapshots().toList().last()
     }
 }
