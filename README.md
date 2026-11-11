@@ -1,5 +1,7 @@
 # StreamMonitor
 
+Built as a take-home exercise and then polished.
+
 An Android app that joins two independent value streams by index, validates and computes
 results under bounded CPU work, and presents them incrementally and resiliently. The core is
 a coroutine stream coordinator that pairs each number with its computation input as both
@@ -63,14 +65,12 @@ poll.
   -PinputsEndpoint=https://example.test/computation_input
 ```
 
-**Instrumented tests.** There are none worth running: `app/src/androidTest` holds only the
-generated placeholder. `./gradlew build` compiles it but the suite asserts nothing. See
-*Trade-offs*.
+**Instrumented tests.** There are none yet; `app/src/androidTest` is empty. See *Trade-offs*.
 
 ## Requirement → Where it lives
 
-The brief itself is not checked into this repository; the requirements below are the ones
-recorded in `PLAN.md` when the work was scoped, each mapped to the code that satisfies it.
+The requirements below are the ones recorded in `PLAN.md` when the work was scoped, each
+mapped to the code that satisfies it.
 
 | Requirement | Where it lives |
 |---|---|
@@ -290,10 +290,10 @@ assert the behaviour each setting produces, and both were mutation-checked: dele
 **Cost.** One more indirection between Hilt and Ktor. Trivial next to a test suite that was
 measuring itself.
 
-### The JSON keys are the brief's, not a convenient generic shape
+### The JSON keys are the specification's, not a convenient generic shape
 
 **Problem.** The first implementation modelled both endpoints with one `{"values": [...]}` DTO.
-It is simpler — a single shared type, one deserializer — and it was wrong: the brief specifies
+It is simpler — a single shared type, one deserializer — and it was wrong: the specification specifies
 two different keys.
 
 **Choice.** Two `@Serializable` types, `NumbersPayload` with `@SerialName("numbers")` and
@@ -322,12 +322,12 @@ It can't: only the layer that knows about HTTP can classify HTTP.
 
 ## Assumptions
 
-The brief states that ambiguity is intentional. These are the readings I committed to:
+The specification states that ambiguity is intentional. These are the readings I committed to:
 
 - **Item values 6–31 are invalid.** Bits 2–6 hold five bits (0–31) but only six item titles
   exist, so anything above 5 is discarded rather than clamped.
 - **Sort order within a section** is item, then state, then source index, with the state order
-  `NotNeeded`, `Pending`, `Ready`, `Failed`. `NotNeeded` precedes `Ready` to match the brief's
+  `NotNeeded`, `Pending`, `Ready`, `Failed`. `NotNeeded` precedes `Ready` to match the specification's
   "Item 4" before "Item 4 result=03" example; `Pending` sits before computed results because it
   is unresolved, and `Failed` is last as the terminal state. Two `Ready` rows tie on state and
   are separated by source index, never by their displayed value.
@@ -342,7 +342,7 @@ The brief states that ambiguity is intentional. These are the readings I committ
   lifecycle moves to `Completed`.
 - **The remote JSON contract was initially wrong and was corrected.** The first implementation
   assumed a single generic `{"values": [...]}` payload shared by both endpoints. That was an
-  inferred shape, not the specified one: the brief names two distinct keys, `numbers` and
+  inferred shape, not the specified one: the specification names two distinct keys, `numbers` and
   `computation_input`. It is recorded here as well as in *Key decisions* because it was an
   assumption I made rather than a trade-off I chose, and it was caught in review rather than
   at the point of writing.
@@ -435,11 +435,10 @@ bound the UI mapping cadence, so the mapper stops doing O(rows) work per emissio
 - **The mapper is the known bottleneck and is still unoptimised.** 70.26% of the large-scenario
   run, with one documented failed attempt. The correct fix is a delta-based snapshot contract
   (or sampling before mapping), not a smarter cache — that much has been measured, not guessed.
-- **No Compose UI tests, no screenshot tests.** `app/src/androidTest` holds only the generated
-  placeholder. The screen is already stateless and takes a `StreamUiState`, so it is trivially
+- **No Compose UI tests, no screenshot tests.** `app/src/androidTest` is empty. The screen is already stateless and takes a `StreamUiState`, so it is trivially
   testable with `createComposeRule`; the atoms in `core:ui` take primitives and would suit
   Paparazzi goldens well. This is the largest real gap in the test strategy, and the reason the
-  *Testing* section names it explicitly rather than counting the placeholder.
+  *Testing* section names it explicitly rather than glossing over it.
 - **Light theme only.** `docs/design_spec.md` defines a full dark palette; `StreamMonitorTheme`
   implements `lightColorScheme` alone. Wiring the dark scheme is mechanical — the tokens already
   exist — it simply was not in scope for the day.

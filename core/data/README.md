@@ -4,7 +4,7 @@ Boundary for raw stream data. `NumbersDataSource` and `InputsDataSource` return 
 `List<Int?>` batches; parsing and stream coordination remain in `core:domain`.
 
 The remote numbers source expects `{"numbers":[1,null,150]}`, while the inputs source expects
-`{"computation_input":[1,null,150]}`. These are the literal JSON keys defined by the brief and
+`{"computation_input":[1,null,150]}`. These are the literal JSON keys defined by the specification and
 must not be renamed. The Hilt graph selects mock or remote implementations from build
 properties, so callers never branch on the active source:
 
@@ -50,7 +50,7 @@ is added.
 
 ## Known issues
 
-These are accepted shortcuts for a one-day challenge; none of them block the current
+These are accepted shortcuts for a time-boxed build; none of them block the current
 single-session usage.
 
 - A mistyped `streamDataSource` or `mockScenario` property fails with a raw

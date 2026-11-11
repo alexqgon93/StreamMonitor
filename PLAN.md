@@ -1,6 +1,6 @@
 # Build plan
 
-One working day. Phases are ordered by risk, not by visibility. Each phase ends with a gate
+Time-boxed to one working day. Phases are ordered by risk, not by visibility. Each phase ends with a gate
 that is verified before moving on.
 
 **Stop at every gate.** Do not start work from a later phase.
@@ -112,7 +112,7 @@ two of the vectors above.
 
 ## Phase 2 — The stream coordinator (2:15) — the hard part
 
-This is where the challenge is won or lost. Budget the most time here and protect it.
+This is where the project is won or lost. Budget the most time here and protect it.
 
 ### The problem
 
@@ -182,7 +182,7 @@ that ignores this produces an almost empty list.
 
 ## Phase 4 — UI (1:30)
 
-The brief says a fancy UI is not part of the challenge. Build what the states require and
+The specification says a fancy UI is not part of the scope. Build what the states require and
 stop.
 
 - Tokens and type scale from the design spec (cheap, makes it look intentional).
@@ -205,7 +205,7 @@ flicker when results arrive.
 
 ## Phase 5 — Evidence and performance (1:00)
 
-Both are explicit requirements in the brief and are easy to forget.
+Both are explicit requirements in the specification and are easy to forget.
 
 **Evidence that it works:**
 - A short test summary in the README: what is covered at each layer and why.
@@ -236,7 +236,7 @@ Three documents. The README is the one that gets read.
   - Emission cadence decoupled from arrival cadence
   - Stable identity separate from sort key
   - Retain rows on global failure
-- **Assumptions**, because the brief says ambiguity is intentional:
+- **Assumptions**, because the specification says ambiguity is intentional:
   - Item values 6–31 are invalid and discarded (5 intermediate bits, 6 titles)
   - Sort order within a section, and where Pending/NotNeeded/Failed rows fall
   - Whether retry resumes or restarts
@@ -244,7 +244,7 @@ Three documents. The README is the one that gets read.
 - **Shortcuts and what you would do next**, with the threshold at which you would change
   each decision.
 
-**`AI_USAGE.md`** — explicitly required by the brief.
+**`AI_USAGE.md`** — explicitly required by the specification.
 - Which tools, for what.
 - What you decided versus what was generated: the contracts, the conventions, the phase
   gates and the review are yours.
@@ -263,4 +263,4 @@ Three documents. The README is the one that gets read.
 - [ ] Both mock and real paths are reachable; the switch is documented
 - [ ] No string literals left in composables
 - [ ] `PLAN.md` rewritten as a delivery record matching what was actually built
-- [ ] Every requirement in the brief maps to something in the README
+- [ ] Every requirement in the specification maps to something in the README

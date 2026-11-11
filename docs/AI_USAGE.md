@@ -10,7 +10,7 @@ That process is the point of this document. An unguided "implement this spec" pa
 default to the path of least resistance on every ambiguous or hard decision — eager
 computation instead of lazy, an unbounded coroutine per value, a shared generic DTO instead of
 the contract's actual JSON keys, a mapper that reconstructs everything because that's simpler
-to write. None of those fail to compile. They fail the four things this brief explicitly asks
+to write. None of those fail to compile. They fail the four things this specification explicitly asks
 to be demonstrated: correctness, resilience, performance, separation of concerns. The
 sections below show where that showed up in practice, and how the process caught it.
 
@@ -42,7 +42,7 @@ easier, weaker version. The rules and contracts fixed in `.github/copilot-instru
 and `PLAN.md` before writing code are what pushed the implementation to the harder, correct
 one instead.
 
-- **Lazy vs. eager computation.** Nothing in the brief forces lazy scheduling — eager
+- **Lazy vs. eager computation.** Nothing in the specification forces lazy scheduling — eager
   computation with a discard is simpler to write and easier to reason about locally. The plan
   required lazy scheduling explicitly, with the cost stated up front (a result waits if its
   input arrives before its number). Without that constraint, the natural default is eager.
@@ -60,10 +60,10 @@ one instead.
   the first UI file.
 - **The JSON contract.** Left to infer a "reasonable" payload shape, the first draft used a
   single generic `{"values": [...]}` for both endpoints — simpler to model with one shared
-  DTO. The brief actually specifies two distinct keys (`numbers`, `computation_input`). This
+  DTO. The specification actually specifies two distinct keys (`numbers`, `computation_input`). This
   was specified exactly when answering an agent question, but the implementation still used
   `values`; the agent pointed this out while writing the documentation. It was fixed to use
-  two DTOs with explicit `@SerialName`s matching the brief. It's a clear example of the model
+  two DTOs with explicit `@SerialName`s matching the specification. It's a clear example of the model
   choosing internal simplicity over spec fidelity when nothing forced otherwise.
 
 ## Where guidance wasn't enough on its own — findings from review
@@ -130,7 +130,7 @@ first plausible-looking answer:
 4. Be willing to revert a change that measured worse, even after it was implemented and
    tested.
 
-An unguided pass on the same brief would very plausibly compile, pass a happy-path smoke test,
+An unguided pass on the same specification would very plausibly compile, pass a happy-path smoke test,
 and still contain every defect listed above, because none of them fail loudly — they fail
 quietly, in exactly the ways this process was built to surface. That gap is why the process
 above was applied throughout rather than treated as optional polish.

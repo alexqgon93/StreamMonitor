@@ -81,6 +81,6 @@ Written as prohibitions where possible: a rule that can be violated silently is 
 
 - No offline caching. It is not in the requirements.
 - No analytics, crash reporting, flavors for their own sake, or release signing.
-- No UI polish beyond the defined tokens and states. The brief states a fancy UI is not part
-  of the challenge.
+- No UI polish beyond the defined tokens and states. The specification states a fancy UI is not part
+  of the scope.
 - No dependency added without a stated reason in the README.
