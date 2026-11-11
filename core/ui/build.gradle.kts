@@ -17,6 +17,14 @@ android {
     }
 }
 
+// AGP built-in Kotlin exposes no Kotlin source sets to the ktlint plugin, so without this only
+// *.kts files are checked in Android modules.
+ktlint {
+    kotlinScriptAdditionalPaths {
+        include(fileTree("src") { include("**/*.kt") })
+    }
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

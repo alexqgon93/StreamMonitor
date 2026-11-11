@@ -50,6 +50,11 @@ android {
 
 ktlint {
     android.set(true)
+    // AGP built-in Kotlin exposes no Kotlin source sets to the ktlint plugin, so without this
+    // only *.kts files are checked in Android modules.
+    kotlinScriptAdditionalPaths {
+        include(fileTree("src") { include("**/*.kt") })
+    }
     ignoreFailures.set(false)
     reporters {
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
