@@ -67,6 +67,28 @@ poll.
 
 **Instrumented tests.** There are none yet; `app/src/androidTest` is empty. See *Trade-offs*.
 
+## Quality gates
+
+Run the local quality checks before opening a pull request:
+
+```bash
+./gradlew :core:domain:test testDebugUnitTest ktlintCheck
+```
+
+`core:domain` is a plain Kotlin/JVM module, so its tests run under `test`, not
+`testDebugUnitTest`; the first task keeps the coordinator and parser suites in the gate.
+
+Useful additional checks:
+
+```bash
+./gradlew lintDebug assembleDebug
+./gradlew ktlintFormat   # auto-fix formatting issues
+```
+
+ktlint uses the `android_studio` code style from the root `.editorconfig`, with
+`@Composable` functions exempt from the function-naming rule. The same checks run in GitHub
+Actions via `.github/workflows/android-quality.yml` (JDK 25, no secrets required).
+
 ## Requirement → Where it lives
 
 The requirements below are the ones recorded in `PLAN.md` when the work was scoped, each
