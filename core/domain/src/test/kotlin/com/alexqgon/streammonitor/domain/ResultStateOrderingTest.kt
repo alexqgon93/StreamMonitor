@@ -1,7 +1,7 @@
 package com.alexqgon.streammonitor.domain
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class ResultStateOrderingTest {
     @Test
@@ -12,8 +12,8 @@ class ResultStateOrderingTest {
                 ResultState.NotNeeded.sortOrder,
                 ResultState.Pending.sortOrder,
                 ResultState.Ready("03").sortOrder,
-                ResultState.Failed(FailureReason.COMPUTATION_FAILED).sortOrder,
-            ),
+                ResultState.Failed(FailureReason.COMPUTATION_FAILED).sortOrder
+            )
         )
     }
 }

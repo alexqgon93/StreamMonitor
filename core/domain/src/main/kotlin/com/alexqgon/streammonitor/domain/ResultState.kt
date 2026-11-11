@@ -33,5 +33,5 @@ sealed interface ResultState {
 enum class FailureReason {
     MISSING_INPUT,
     INVALID_INPUT,
-    COMPUTATION_FAILED,
+    COMPUTATION_FAILED
 }

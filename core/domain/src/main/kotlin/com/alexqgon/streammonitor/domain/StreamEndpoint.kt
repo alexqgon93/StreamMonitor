@@ -9,8 +9,5 @@ fun interface StreamEndpoint {
  *
  * Data-layer adapters translate transport and payload failures to this pure-domain type.
  */
-class StreamEndpointException(
-    message: String,
-    val retryable: Boolean,
-    cause: Throwable? = null,
-) : Exception(message, cause)
+class StreamEndpointException(message: String, val retryable: Boolean, cause: Throwable? = null) :
+    Exception(message, cause)

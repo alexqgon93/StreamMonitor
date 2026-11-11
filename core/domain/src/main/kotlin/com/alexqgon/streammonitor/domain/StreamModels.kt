@@ -4,7 +4,7 @@ data class StreamRow(
     val sourceIndex: Int,
     val sectionIndex: Int,
     val itemIndex: Int,
-    val result: ResultState,
+    val result: ResultState
 )
 
 data class StreamSnapshot(
@@ -12,7 +12,7 @@ data class StreamSnapshot(
     val rows: List<StreamRow>,
     val numbersReceived: Int,
     val inputsReceived: Int,
-    val discardedCount: Int,
+    val discardedCount: Int
 )
 
 sealed interface StreamLifecycle {

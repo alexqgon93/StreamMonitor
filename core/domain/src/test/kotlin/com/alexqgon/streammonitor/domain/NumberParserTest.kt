@@ -68,7 +68,8 @@ class NumberParserTest {
         fun `null input is an invalid null value`() {
             val result = NumberParser.parse(null)
 
-            result.shouldBeInstanceOf<ParseResult.Invalid>().reason shouldBe InvalidReason.NULL_VALUE
+            result.shouldBeInstanceOf<ParseResult.Invalid>().reason shouldBe
+                InvalidReason.NULL_VALUE
         }
 
         @Test

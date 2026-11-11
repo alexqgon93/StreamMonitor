@@ -6,6 +6,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.awaitAll
 
 /**
  * Joins two independently advancing streams by their cumulative source index.
@@ -30,7 +30,7 @@ class StreamCoordinator(
     private val computationDispatcher: CoroutineDispatcher = DEFAULT_COMPUTATION_DISPATCHER,
     private val compute: (UShort) -> String = { ResultComputer.compute(it) },
     private val retryPolicy: RetryPolicy = RetryPolicy(),
-    private val backoffDelay: suspend (Long) -> Unit = { delay(it) },
+    private val backoffDelay: suspend (Long) -> Unit = { delay(it) }
 ) {
     fun snapshots(): Flow<StreamSnapshot> = channelFlow {
         val events = Channel<Event>(Channel.RENDEZVOUS)
@@ -56,8 +56,8 @@ class StreamCoordinator(
                     },
                     numbersReceived = numberCursor,
                     inputsReceived = inputCursor,
-                    discardedCount = discardedCount,
-                ),
+                    discardedCount = discardedCount
+                )
             )
         }
 
@@ -71,7 +71,7 @@ class StreamCoordinator(
                         sections,
                         rowsBySourceIndex,
                         index,
-                        ResultState.Failed(FailureReason.MISSING_INPUT),
+                        ResultState.Failed(FailureReason.MISSING_INPUT)
                     )
                 }
                 return
@@ -82,14 +82,14 @@ class StreamCoordinator(
                     sections,
                     rowsBySourceIndex,
                     index,
-                    ResultState.Failed(FailureReason.MISSING_INPUT),
+                    ResultState.Failed(FailureReason.MISSING_INPUT)
                 )
 
                 !in 0..MAX_UNSIGNED_SHORT -> updateRow(
                     sections,
                     rowsBySourceIndex,
                     index,
-                    ResultState.Failed(FailureReason.INVALID_INPUT),
+                    ResultState.Failed(FailureReason.INVALID_INPUT)
                 )
 
                 else -> {
@@ -116,7 +116,7 @@ class StreamCoordinator(
                 insertRow(
                     sections,
                     rowsBySourceIndex,
-                    StreamRow(index, validNumber.sectionIndex, validNumber.itemIndex, initialState),
+                    StreamRow(index, validNumber.sectionIndex, validNumber.itemIndex, initialState)
                 )
                 scheduleIfReady(index)
             }
@@ -141,7 +141,7 @@ class StreamCoordinator(
                         sections,
                         rowsBySourceIndex,
                         index,
-                        ResultState.Failed(FailureReason.MISSING_INPUT),
+                        ResultState.Failed(FailureReason.MISSING_INPUT)
                     )
                 }
         }
@@ -247,10 +247,7 @@ class StreamCoordinator(
  * Uses linear backoff because polling already bounds request frequency and needs predictable,
  * short recovery latency; exponential backoff is unnecessary for this small local retry budget.
  */
-data class RetryPolicy(
-    val maxAttempts: Int = 3,
-    val initialBackoffMillis: Long = 10,
-) {
+data class RetryPolicy(val maxAttempts: Int = 3, val initialBackoffMillis: Long = 10) {
     init {
         require(maxAttempts > 0)
         require(initialBackoffMillis >= 0)
@@ -261,7 +258,7 @@ private const val MAX_COMPUTATION_PARALLELISM = 4
 
 private enum class StreamKind {
     NUMBERS,
-    INPUTS,
+    INPUTS
 }
 
 private sealed interface Event {
@@ -278,7 +275,7 @@ private suspend fun pollUntilDone(
     endpoint: StreamEndpoint,
     retryPolicy: RetryPolicy,
     delay: suspend (Long) -> Unit,
-    events: Channel<Event>,
+    events: Channel<Event>
 ) {
     var failures = 0
     while (true) {
@@ -310,13 +307,13 @@ private val rowComparator = compareBy<StreamRow>(
     { it.itemIndex },
     { it.result.sortOrder },
     { it.result.resultSortKey },
-    { it.sourceIndex },
+    { it.sourceIndex }
 )
 
 private fun insertRow(
     sections: Array<TreeSet<StreamRow>>,
     rowsBySourceIndex: MutableMap<Int, StreamRow>,
-    row: StreamRow,
+    row: StreamRow
 ) {
     sections[row.sectionIndex].add(row)
     rowsBySourceIndex[row.sourceIndex] = row
@@ -326,7 +323,7 @@ private fun updateRow(
     sections: Array<TreeSet<StreamRow>>,
     rowsBySourceIndex: MutableMap<Int, StreamRow>,
     sourceIndex: Int,
-    result: ResultState,
+    result: ResultState
 ) {
     val current = rowsBySourceIndex[sourceIndex] ?: return
     sections[current.sectionIndex].remove(current)
