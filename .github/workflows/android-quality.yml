@@ -24,7 +24,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run unit tests and ktlint
-        run: ./gradlew testDebugUnitTest ktlintCheck --no-daemon
+        run: ./gradlew :core:domain:test testDebugUnitTest ktlintCheck --no-daemon
 
       - name: Run Android lint and assemble
         run: ./gradlew lintDebug assembleDebug --no-daemon
