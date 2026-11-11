@@ -15,8 +15,9 @@ snapshots at a cadence decoupled from the arrival rate.
 | ![Idle](docs/screenshots/idle.png)  | ![Completed run](docs/screenshots/completed.png)   |
 
 The completed shot is the `happy_path` mock scenario: 40 numbers and 40 inputs received, 8
-values discarded as invalid, rows grouped by section and ordered by item. `Item 2` rows carry
-no result because their result bit is not set; `Item 3` rows show the computed value.
+values discarded as invalid, rows grouped by section and ordered by item. The `Item 2` rows
+show no result because their result bit is not set; the `Item 3` rows each show a computed
+value (`result = 03`, `10`, `17`, `31`, in ascending order).
 
 ## Running it
 
@@ -89,29 +90,28 @@ ktlint uses the `android_studio` code style from the root `.editorconfig`, with
 `@Composable` functions exempt from the function-naming rule. The same checks run in GitHub
 Actions via `.github/workflows/android-quality.yml` (JDK 25, no secrets required).
 
-## Requirement → Where it lives
+## How the behaviour maps to code
 
-The requirements below are the ones recorded in `PLAN.md` when the work was scoped, each
-mapped to the code that satisfies it.
+A guide to where each behaviour is implemented, for reading the code top-down.
 
-| Requirement | Where it lives |
+| Behaviour | Where it lives |
 |---|---|
-| **Two endpoints polled independently**, each returning the values available at request time, possibly truncated | `pollUntilDone` in `StreamCoordinator.kt` runs one polling coroutine per endpoint; batches arrive as `Event.Batch` on a rendezvous `Channel`, so neither endpoint waits for the other. |
-| **An empty array means that stream is done** | `if (values.isEmpty())` emits `Event.EndpointFinished` and stops that poller. |
-| **Index `i` of numbers corresponds to index `i` of inputs**, but the streams advance at different rates | Each stream owns a cursor (`numberCursor`, `inputCursor`) incremented per received entry. `scheduleIfReady(index)` is called from *both* the number and input paths, so whichever arrives second triggers the join. |
-| **Parse each value: bits 0–1 section, bits 2–6 item, bit 7 result flag** | `NumberParser.parse` — `SECTION_MASK = 0b11`, `ITEM_SHIFT = 2` / `ITEM_MASK = 0b1_1111`, `RESULT_FLAG_MASK = 1 shl 7`. |
-| **Item values above 5 are invalid** | `MAX_ITEM_INDEX = 5` → `ParseResult.Invalid(ITEM_OUT_OF_RANGE)`. Exactly 48 of the 256 byte values parse as valid, pinned by a census test over the full byte domain. |
-| **Handle `null` entries** | A `null` *number* is `Invalid(NULL_VALUE)` and increments the discarded count. A `null` *input* is `ResultState.Failed(MISSING_INPUT)` — a row-level failure, not a discard. The two are modelled separately on purpose. |
-| **Values outside the byte range** | `Invalid(OUT_OF_BYTE_RANGE)`: the JSON carries `Int`, so `0..255` is validated in the parser rather than assumed by the type. |
-| **Compute a result for values whose result bit is set**, from a 16-bit unsigned input | `ResultComputer.compute(input: UShort)` returns `input % 100` zero-padded to two characters. Inputs outside `0..65535` become `Failed(INVALID_INPUT)`. |
-| **The computation is CPU-expensive** | `SIMULATED_WORK_ITERATIONS = 100_000` integer ops, explicitly marked as a cost simulation and removable without changing the returned value. It is a busy loop, not a `delay`, so it is real CPU load. |
-| **Display results grouped by section, ordered by item** | Four `TreeSet<StreamRow>` (one per section) ordered by `rowComparator`; `StreamSnapshot.rows` is already sorted when the UI receives it. |
-| **Show how many values were discarded** | `discardedCount` on the snapshot → `DiscardedSummary` atom, rendered through a `<plurals>` resource. |
-| **Results appear incrementally as they are computed** | The coordinator emits a snapshot after every drained computation batch; the `LazyColumn` keys rows by `sourceIndex`, so a row that gains a result moves instead of being recreated. |
-| **Survive endpoint failures** | `StreamEndpointException` carries retryability; transient failures retry with linear backoff, exhausted retries produce `StreamLifecycle.Failed` **without erasing rows already received**. |
-| **Mock and real data sources behind one interface** | `NumbersDataSource` / `InputsDataSource` with `Remote*` and `Mock*` implementations; `StreamDataSourceModule` is the only place that chooses. No call site branches on the active source. |
-| **Evidence of performance** | Measured on the `large` scenario — see *Performance*. |
-| **Document AI usage** | `docs/AI_USAGE.md`. |
+| **Numbers and inputs are polled independently.** Each endpoint returns whatever it has at request time, possibly a partial list. | `pollUntilDone` in `StreamCoordinator.kt` runs one polling coroutine per endpoint. Batches reach the coordinator as `Event.Batch` over a rendezvous `Channel`, so neither endpoint waits for the other. |
+| **An empty response ends that stream.** | `if (values.isEmpty())` sends `Event.EndpointFinished` and stops that poller. |
+| **Numbers and inputs are joined by position**, even though they advance at different rates. | Each stream has its own cursor (`numberCursor`, `inputCursor`) advanced per received entry. `scheduleIfReady(index)` is called from both the numbers path and the inputs path, so whichever side arrives second triggers the join. |
+| **Decoding a number:** bits 0-1 are the section, bits 2-6 the item, bit 7 says whether a result is needed. | `NumberParser.parse`: `SECTION_MASK = 0b11`, `ITEM_SHIFT = 2` with `ITEM_MASK = 0b1_1111`, and `RESULT_FLAG_MASK = 1 shl 7`. |
+| **Items above 5 are rejected.** | `MAX_ITEM_INDEX = 5` leads to `ParseResult.Invalid(ITEM_OUT_OF_RANGE)`. Exactly 48 of the 256 byte values parse as valid; a census test over the whole byte range pins that. |
+| **`null` entries.** | A `null` *number* is `Invalid(NULL_VALUE)` and adds to the discarded count. A `null` *input* gives its row `ResultState.Failed(MISSING_INPUT)`: a row failure, not a discard. I keep the two separate on purpose. |
+| **Numbers outside 0-255.** | `Invalid(OUT_OF_BYTE_RANGE)`. The JSON carries plain `Int`s, so the parser checks the range instead of trusting the type. |
+| **Computing a result** for numbers whose result bit is set, from a 16-bit unsigned input. | `ResultComputer.compute(input: UShort)` returns `input % 100` as two characters, zero-padded. Inputs outside `0..65535` give `Failed(INVALID_INPUT)`. |
+| **The computation costs real CPU.** | `SIMULATED_WORK_ITERATIONS = 100_000` integer operations, clearly marked as a cost simulation that can be removed without changing the returned value. It is a busy loop rather than a `delay`, so it loads the CPU for real. |
+| **Grouping and ordering of rows.** | Four `TreeSet<StreamRow>`, one per section, ordered by `rowComparator`. `StreamSnapshot.rows` is already sorted when it reaches the UI. |
+| **Discarded count.** | `discardedCount` on the snapshot, shown by the `DiscardedSummary` atom through a `<plurals>` resource. |
+| **Incremental display.** | The coordinator emits a snapshot after each drained batch of computations. The `LazyColumn` keys rows by `sourceIndex`, so a row that gains a result changes position instead of being recreated. |
+| **Endpoint failures.** | `StreamEndpointException` carries whether a failure is retryable. Transient failures are retried with linear backoff; once retries run out the lifecycle becomes `StreamLifecycle.Failed` and the rows already received stay in the snapshot. |
+| **Mock and remote data behind one interface.** | `NumbersDataSource` / `InputsDataSource` with `Remote*` and `Mock*` implementations. `StreamDataSourceModule` is the only place that picks one; nothing downstream branches on the active source. |
+| **Performance evidence.** | Measured on the `large` scenario, see *Performance*. |
+| **AI usage.** | `docs/AI_USAGE.md`. |
 
 ## Architecture
 
@@ -230,11 +230,11 @@ and creates a new one: the `LazyColumn` recycles it as a fresh item, and it flic
 than moves.
 
 **Choice.** `StreamRow.sourceIndex` is the identity and never changes; the sort key is
-`(itemIndex, result.sortOrder, sourceIndex)`. `updateRow` removes the row from its section's
+`(itemIndex, result.sortOrder, result.resultSortKey, sourceIndex)`. `updateRow` removes the row from its section's
 `TreeSet`, copies it with the new state, and reinserts it — same identity, new position. The
 `LazyColumn` keys on `sourceIndex`. Because `sourceIndex` is the final tie-breaker, the
 ordering is **total**: no two rows ever compare equal, so the order is deterministic even among
-rows sharing an item and a state.
+rows sharing an item, a state and a computed value.
 
 **Cost.** Two concepts to keep straight where one would compile, plus a `TreeSet` per section
 rather than a flat list. In exchange, re-sorting is scoped to the section that changed instead
@@ -348,11 +348,12 @@ The specification states that ambiguity is intentional. These are the readings I
 
 - **Item values 6–31 are invalid.** Bits 2–6 hold five bits (0–31) but only six item titles
   exist, so anything above 5 is discarded rather than clamped.
-- **Sort order within a section** is item, then state, then source index, with the state order
-  `NotNeeded`, `Pending`, `Ready`, `Failed`. `NotNeeded` precedes `Ready` to match the specification's
-  "Item 4" before "Item 4 result=03" example; `Pending` sits before computed results because it
-  is unresolved, and `Failed` is last as the terminal state. Two `Ready` rows tie on state and
-  are separated by source index, never by their displayed value.
+- **Sort order within a section** is item, then state, then (for `Ready` rows) the computed
+  value, then source index, with the state order `NotNeeded`, `Pending`, `Ready`, `Failed`.
+  `NotNeeded` precedes `Ready` so that an `Item 4` row with no result sits above an `Item 4`
+  row showing `result = 03`; `Pending` sits before computed results because it is unresolved,
+  and `Failed` is last as the terminal state. Two `Ready` rows in the same item are ordered by
+  value (`ResultState.resultSortKey`), and source index only separates equal values.
 - **Retry restarts, it does not resume.** Each run builds a fresh coordinator over freshly
   resolved data sources, so a mock source never inherits the previous run's cursor.
 - **Index pairing is by cumulative receive order per stream**, not by any identifier inside the
@@ -371,11 +372,11 @@ The specification states that ambiguity is intentional. These are the readings I
 
 ## Testing
 
-71 tests across the three modules that carry logic, layered to match them. `core:domain` is
+72 tests across the three modules that carry logic, layered to match them. `core:domain` is
 the heavily-tested part and runs entirely on the JVM. (`app` also holds the generated
 `ExampleUnitTest` asserting `2 + 2 == 4`; it is not counted here.)
 
-- **Domain (`core:domain`, 31 tests).** The coordinator is tested with **virtual time** —
+- **Domain (`core:domain`, 32 tests).** The coordinator is tested with **virtual time** —
   `runTest`, `TestDispatcher`, `advanceTimeBy` — with **zero real `delay` and zero
   `Thread.sleep`**; the backoff delay is an injected `suspend (Long) -> Unit`, and the
   `compute` function is injectable so tests can make it fail or hang deterministically.
