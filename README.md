@@ -346,7 +346,7 @@ It can't: only the layer that knows about HTTP can classify HTTP.
 
 ## Assumptions
 
-The brief left some behaviour open. These are the readings I committed to:
+Some behaviour was left open. These are the readings I committed to:
 
 - **Item values 6–31 are invalid.** Bits 2–6 hold five bits (0–31) but only six item titles
   exist, so anything above 5 is discarded rather than clamped.
