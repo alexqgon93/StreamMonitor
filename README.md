@@ -8,6 +8,8 @@ a coroutine stream coordinator that pairs each number with its computation input
 arrive, schedules only the computations that can produce a visible result, and emits
 snapshots at a cadence decoupled from the arrival rate.
 
+**In short:** a pure-Kotlin coordinator joins two asynchronous streams by index, computes lazily with bounded parallelism, and emits conflated snapshots to a Compose UI. 72 tests, with the key guarantees mutation-checked, and one optimisation that was measured and reverted because it made things worse.
+
 ## Screenshots
 
 | Idle                                | Completed run                                      |
@@ -344,7 +346,7 @@ It can't: only the layer that knows about HTTP can classify HTTP.
 
 ## Assumptions
 
-The specification states that ambiguity is intentional. These are the readings I committed to:
+The brief left some behaviour open. These are the readings I committed to:
 
 - **Item values 6–31 are invalid.** Bits 2–6 hold five bits (0–31) but only six item titles
   exist, so anything above 5 is discarded rather than clamped.
@@ -430,13 +432,14 @@ running each scenario on an emulator. See *Trade-offs*.
 
 Measured on the `large` mock scenario — 20,000 numbers plus 20,000 inputs, 40,000 values total
 — running on an Android emulator (Pixel 9 Pro XL, API 36), debug build, with the CPU-cost
-simulation at its full 100,000 iterations per computation.
+simulation at its full 100,000 iterations per computation. These are debug-build numbers on an emulator, so treat the absolute
+values as indicative; the comparison between runs is what matters.
 
 | Metric | Value |
 |---|---|
-| Mean end-to-end time to `Completed` | **2.650822252 s** |
-| Throughput | **≈15,089 values/s** |
-| Snapshot mapper, cumulative | 1.862560118 s (**70.26%** of the run) |
+| Mean end-to-end time to `Completed` | **≈2.65 s** |
+| Throughput | **≈15,000 values/s** |
+| Snapshot mapper, cumulative | ≈1.86 s (**70%** of the run) |
 
 The number worth acting on is the last one: the dominant cost is not the join, the parsing or
 the bounded computation — it is `StreamSnapshotMapper` rebuilding every visible UI row on every
@@ -444,8 +447,8 @@ surviving snapshot.
 
 **An optimisation that was measured and reverted.** A per-`sourceIndex` reference cache was
 implemented to reuse unchanged row objects. It was functionally correct and verified with
-dedicated identity tests — and it made the metric **worse**: mapper time rose to 2.222957407 s
-(82.10%) of a 2.707627418 s mean, about 57 ms slower end to end. The cache still traversed
+dedicated identity tests — and it made the metric **worse**: mapper time rose to ≈2.22 s
+(82%) of a ≈2.71 s mean, about 57 ms slower end to end. The cache still traversed
 every row and added map and list bookkeeping on top of the traversal it was meant to avoid. It
 was reverted because the number went the wrong way, not because it looked inelegant.
 
